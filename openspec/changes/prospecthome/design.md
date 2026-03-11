@@ -1,4 +1,4 @@
-# ProspectaCasa MVP — Design
+# ProspectHome MVP — Design
 
 ## Clean Architecture Overview
 

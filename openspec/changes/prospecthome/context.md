@@ -1,4 +1,4 @@
-# Contexto da Conversa — ProspectaCasa MVP
+# Contexto da Conversa — ProspectHome MVP
 
 > Este documento registra o raciocínio e decisões tomadas durante a fase de exploração do projeto.
 

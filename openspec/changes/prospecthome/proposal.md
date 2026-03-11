@@ -1,4 +1,4 @@
-# ProspectaCasa MVP — Proposal
+# ProspectHome MVP — Proposal
 
 ## Summary
 

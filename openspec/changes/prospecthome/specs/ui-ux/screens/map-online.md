@@ -1,0 +1,136 @@
+# ProspectHome — Mapa Online (com pins)
+
+> Tela principal do app. Mapa fullscreen com pins dos prospectos. Tab **Mapa** ativa.
+
+```html
+<!DOCTYPE html>
+<html class="light" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ProspectHome - Imóveis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary": "#2e7d32",
+                    "background-light": "#f6f8f6",
+                    "background-dark": "#141e15",
+                },
+                fontFamily: { "display": ["Inter"] },
+                borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+            },
+        },
+    }
+</script>
+<style>
+    .map-gradient { background: linear-gradient(135deg, #e2e8e2 0%, #d1d9d1 100%); }
+    body { min-height: max(884px, 100dvh); }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .material-symbols-filled { font-family: 'Material Symbols Outlined'; font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased text-slate-900 dark:text-slate-100 overflow-hidden h-screen flex flex-col">
+<!-- Top App Bar -->
+<header class="h-16 flex items-center justify-between px-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shrink-0">
+<h1 class="text-xl font-bold tracking-tight text-primary">ProspectHome</h1>
+<div class="flex items-center">
+<button class="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined text-[24px]">sync</span>
+</button>
+</div>
+</header>
+<!-- Main Map Area -->
+<main class="relative flex-1 bg-background-light dark:bg-background-dark overflow-hidden">
+<div class="absolute inset-0 map-gradient" data-location="São Paulo, Brazil">
+<div class="absolute inset-0 opacity-20 pointer-events-none">
+<div class="absolute top-1/4 left-0 w-full h-[2px] bg-slate-400 rotate-12"></div>
+<div class="absolute top-1/2 left-0 w-full h-[2px] bg-slate-400 -rotate-6"></div>
+<div class="absolute top-0 left-1/3 w-[2px] h-full bg-slate-400 rotate-3"></div>
+<div class="absolute top-0 left-2/3 w-[2px] h-full bg-slate-400 -rotate-2"></div>
+</div>
+<!-- Map Pins -->
+<div class="absolute top-[20%] left-[30%] text-primary">
+<span class="material-symbols-outlined text-[32px] fill-current">location_on</span>
+</div>
+<div class="absolute top-[45%] left-[70%] text-primary/60">
+<span class="material-symbols-outlined text-[32px] fill-current">location_on</span>
+</div>
+<div class="absolute top-[60%] left-[20%] text-primary/60">
+<span class="material-symbols-outlined text-[32px] fill-current">location_on</span>
+</div>
+<div class="absolute top-[80%] left-[50%] text-primary/60">
+<span class="material-symbols-outlined text-[32px] fill-current">location_on</span>
+</div>
+<div class="absolute top-[15%] left-[80%] text-primary/60">
+<span class="material-symbols-outlined text-[32px] fill-current">location_on</span>
+</div>
+<div class="absolute top-[35%] left-[45%] text-primary/60">
+<span class="material-symbols-outlined text-[32px] fill-current">location_on</span>
+</div>
+<!-- Active Pin + Floating Card -->
+<div class="absolute top-[40%] left-[40%] flex flex-col items-center">
+<div class="mb-4 w-72 bg-white dark:bg-slate-800 rounded-lg shadow-xl overflow-hidden border border-slate-100 dark:border-slate-700">
+<div class="flex p-3 gap-3">
+<div class="w-20 h-20 rounded bg-slate-200 shrink-0 overflow-hidden">
+<img alt="Modern house facade" class="w-full h-full object-cover" data-alt="Modern house exterior with green garden" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4N62B9uQ1U9NMM7pxOlSw1JH9wy8T69iwEsNNbQHRR1s7HCxs8g9KwSw-UXXjHuf7Ko3MVQ7cHQHNcvMtOOtFwe6yqjfSKC901Dz7AxAjIZHKgA_OtH2RONEYDRNfAS5cFHn3VnImjWa4B9UMeJPnmN4yU4l8CaQWQI8Ukl9LuOd6up6q8c-XmraEuGd1pH5wPrpBjm80Pkvy4noJRI-HEtmS62Gk6s9ppye81Kuyz5Crmz2FozbEWxJ9mvFk-ajnd7UvnnYywRz8"/>
+</div>
+<div class="flex flex-col justify-between flex-1">
+<div>
+<span class="inline-block px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded uppercase mb-1">Novo</span>
+<h3 class="text-sm font-bold leading-tight">Rua Augusta, 1234</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400">Consolação</p>
+</div>
+<a class="text-primary text-xs font-semibold flex items-center gap-1 mt-1" href="#">
+Ver detalhes <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+<div class="relative text-primary">
+<span class="material-symbols-outlined text-[40px] fill-current drop-shadow-md">location_on</span>
+<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-1 bg-black/20 blur-sm rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Floating Controls -->
+<div class="absolute right-4 top-4 flex flex-col gap-2">
+<button class="w-12 h-12 bg-white dark:bg-slate-800 rounded-lg shadow-lg flex items-center justify-center text-slate-700 dark:text-slate-200">
+<span class="material-symbols-outlined">search</span>
+</button>
+<div class="flex flex-col bg-white dark:bg-slate-800 rounded-lg shadow-lg divide-y divide-slate-100 dark:divide-slate-700">
+<button class="w-12 h-12 flex items-center justify-center text-slate-700 dark:text-slate-200"><span class="material-symbols-outlined">add</span></button>
+<button class="w-12 h-12 flex items-center justify-center text-slate-700 dark:text-slate-200"><span class="material-symbols-outlined">remove</span></button>
+</div>
+<button class="w-12 h-12 bg-white dark:bg-slate-800 rounded-lg shadow-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">my_location</span>
+</button>
+</div>
+</main>
+<!-- ===== BOTTOM NAVIGATION (Mapa Active) ===== -->
+<nav class="h-20 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-around px-2 shrink-0">
+<a class="flex flex-col items-center gap-1 w-24" href="#">
+<div class="relative flex items-center justify-center w-16 h-8 bg-primary/20 rounded-full">
+<span class="material-symbols-filled text-primary">location_on</span>
+</div>
+<span class="text-xs font-bold text-slate-900 dark:text-slate-100">Mapa</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-24" href="#">
+<div class="flex items-center justify-center h-8">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-[28px]">photo_camera</span>
+</div>
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400">Captura</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-24" href="#">
+<div class="flex items-center justify-center h-8">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-[28px]">description</span>
+</div>
+<span class="text-xs font-medium text-slate-500 dark:text-slate-400">Lista</span>
+</a>
+</nav>
+</body></html>
+```

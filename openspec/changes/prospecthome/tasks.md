@@ -1,4 +1,4 @@
-# ProspectaCasa MVP — Tasks
+# ProspectHome MVP — Tasks
 
 ## Fase 1: Setup do Projeto
 
