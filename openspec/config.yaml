@@ -1,20 +1,25 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Projeto: ProspectHome MVP
+  Stack: Expo (React Native), SQLite, Supabase, TailwindCSS (NativeWind), Jest.
+  Arquitetura: Clean Architecture Restrita (4 layers: Domain, Application, Infrastructure, Presentation) + DDD.
+  Metodologia: Mocks First, Test-Driven Development (TDD) e Offline-first. Todo o aplicativo, fluxos e UI devem rodar e estar testados ANTES de conexão real em nuvem.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  general:
+    - "🚨 STEP-BY-STEP RIGOROSO: Execute apenas UMA tarefa por vez relatada no plano (tasks.md). NUNCA gere blocos massivos de código sem revisão humana."
+    - "🧩 FRACIONAMENTO DE TASKS: Se prever que implementar ou refatorar algo exigirá mexer com mais de 2 arquivos complexos de uma vez, FRACIONE a task e valide o detalhamento antes de codificar."
+    - "🛑 CONECTIVIDADE NO FINAL: Não adiante integrações de rede/banco de dados em produção antes da sua vez nas fases. UI, Tests e Casos de Uso funcionam 100% locamente."
+  
+  arquitetura_e_codigo:
+    - "CLEAN ARCHITECTURE: A camada de DOMÍNIO tem ZERO dependências do framework (nem React, nem Expo, nem API). A dependência aponta sempre para dentro."
+    - "MOCKS PRIMEIRO: Na infraestrutura primária, APIs e Nuvem (Gateways) são injetadas (Mocked) via Dependency Injection Container. Supabase de verdade entra por último."
+    - "TDD OBRIGATÓRIO: Crie os testes unitários (ou snapshots da UI com React Native Testing Library) cobrindo regras *antes* do seu código concreto."
+    - "CI/CD EARLY: O projeto contará com um workflow que garanta a bateria de testes e Linter rodando desde o início da fase de setup."
+  
+  ui_ux:
+    - "LEI DE HICK: Assegure interfaces que limitem a carga cognitiva do usuário (menos escolhas, botões primários gigantes como a ação de Captura)."
+    - "TOUCH TARGETS: Todos os elementos de navegação, chips e campos DEVEM ostentar proporções mínimas adequadas a motoristas parados no trânsito (≥ 48x48dp)."
+    - "CONSISTÊNCIA E ALINHAMENTO: Use exatamente os mesmos tons, tamanhos (Material 3 Defaults via Tailwind/NativeWind) e os ícones designados no wireframe da pasta de UI/UX. Repetição leva a familiaridade."
+    - "ESTADO OFFLINE NÃO BLOQUEANTE: Se não houver rede, a UI reflete via badges e banners de maneira elegante. Nenhum fluxo primordial trava aguardando timeout de internet."

@@ -1,5 +1,11 @@
 # ProspectHome MVP — Tasks
 
+> **🛑 REGRA DE OURO (STEP-BY-STEP RIGOROSO):**
+> 1. Execute apenas **UMA** tarefa (checkbox da lista) por vez e aguarde a revisão humana.
+> 2. **NUNCA** implemente lógica futura ou gere arquivos que não correspondam à task atual.
+> 3. Se uma task for complexa (exigindo modificação de muitos arquivos de uma vez), **pare e proponha o fracionamento** dela.
+> 4. Todas as lógicas do domínio/app **devem** ser construídas primeiro utilizando TDD e Mocks. Integração real (Supabase) **apenas** no final.
+
 ## Fase 1: Setup do Projeto
 
 - [ ] **1.1 Inicializar projeto Expo**
@@ -8,24 +14,26 @@
   - Instalar dependências core:
     - `expo-router`, `expo-sqlite`, `expo-location`
     - `expo-image-picker`, `expo-image-manipulator`, `expo-file-system`
-    - `react-native-maps`, `@react-native-community/netinfo`
+    - `react-native-maps`, `react-native-map-clustering`, `@react-native-community/netinfo`
     - `@supabase/supabase-js`, `uuid`
+  - Instalar e configurar framework de estilos (ex: `nativewind` e `tailwindcss`)
+  - Configurar plugins no `app.json` (permissões de Câmera e Localização)
+  - Configurar variáveis de ambiente (`.env` com strings do Supabase)
+  - Configurar ambiente de TDD: instalar `jest`, `jest-expo` e `@testing-library/react-native`
 
 - [ ] **1.2 Estrutura de pastas Clean Architecture**
   - Criar estrutura: `src/domain/`, `src/application/`, `src/infrastructure/`, `src/presentation/`, `src/di/`
   - Criar subpastas conforme design.md (entities, value-objects, repositories, use-cases, etc.)
 
-- [ ] **1.3 Configurar Supabase**
-  - Criar projeto no Supabase
-  - Configurar Auth (email/senha)
-  - Criar tabelas: `profiles`, `prospectos`
-  - Configurar RLS policies
-  - Criar Storage bucket "fotos" com policies
-  - Criar `infrastructure/supabase/SupabaseClient.ts`
+- [ ] **1.3 CI/CD e Qualidade de Código Inicial**
+  - Configurar Github Actions (ou similar)
+  - Configurar pipeline automatizado rodando ESLint, Type Checking (`tsc --noEmit`) e a Bateria de Testes (TDD) via Jest.
 
 ---
 
 ## Fase 2: Domain Layer
+
+> **Requisito TDD:** Escrever os testes unitários (`.test.ts`) cobrindo validações e invariantes ANTES de implementar as entidades e objetos de valor.
 
 - [ ] **2.1 Value Objects**
   - `domain/value-objects/Coordinates.ts` — lat/lng validado, imutável
@@ -53,6 +61,8 @@
 
 ## Fase 3: Infrastructure Layer
 
+> **Requisito TDD:** Criar testes para os Repositórios e Serviços utilizando mocks (`jest.mock`) para APIs externas e SDKs (ex: SQLite, Supabase e FileSystem) antes de codificar as integrações.
+
 - [ ] **3.1 SQLite — Setup e Migrations**
   - `infrastructure/database/SQLiteClient.ts` — init expo-sqlite
   - `infrastructure/database/migrations.ts` — schema session + prospectos
@@ -71,11 +81,10 @@
     - `capturePhoto()` via expo-image-picker
     - `compressPhoto()` via expo-image-manipulator (800px, 70-80%)
 
-- [ ] **3.4 Supabase — Gateways (implements interfaces)**
-  - `infrastructure/supabase/SupabaseAuthGateway.ts` — implements `IAuthGateway`
-  - `infrastructure/supabase/SupabaseSyncGateway.ts` — implements `ISyncGateway`
-    - `uploadProspecto()`: foto → Storage, dados → Postgres
-    - `pullUpdates()`: busca registros atualizados (endereço resolvido)
+- [ ] **3.4 Gateways — Mocks Iniciais (Clean Architecture)**
+  - `infrastructure/mock/MockAuthGateway.ts` — implements `IAuthGateway` (simula auth de sucesso)
+  - `infrastructure/mock/MockSyncGateway.ts` — implements `ISyncGateway` (simula delay de nuvem)
+  - *Obs: Validar a UI e Use Cases 100% locamente antes da adoção da nuvem. Integração real adiada para a Fase 10.*
 
 - [ ] **3.5 Network Service**
   - `infrastructure/network/NetworkService.ts` — wrapper NetInfo (online/offline)
@@ -83,6 +92,8 @@
 ---
 
 ## Fase 4: Application Layer (Use Cases)
+
+> **Requisito TDD:** Projetar os testes dos Use Cases introduzindo stubs locais para os contratos do Domain. O objetivo deve ser validar 100% das regras de negócio e exceções pré-implementação.
 
 - [ ] **4.1 Use Cases de Auth**
   - `application/use-cases/auth/LoginUseCase.ts`
@@ -106,7 +117,7 @@
 - [ ] **4.3 Use Case de Sync**
   - `application/use-cases/sync/SyncProspectosUseCase.ts`
     - Recebe: `IProspectoRepository`, `ISyncGateway`, `IPhotoStorage`
-    - Fluxo: busca pending → upload cada um → pull updates
+    - Fluxo: busca pending → upload cada um → pull updates → atualiza entidades resolvendo endereços → salva no repositório local
 
 ---
 
@@ -122,10 +133,14 @@
 
 ## Fase 6: Presentation Layer — Auth
 
-- [ ] **6.1 Hooks de Auth**
+> **Requisito TDD:** Utilizar `@testing-library/react-native` para renderizar componentes vitais e simular interações, garantindo a lógica de view (Hooks) desvinculada do layout final e testada antes de testar num emulador real.
+
+- [ ] **6.1 Contexto e Hooks de Auth**
+  - Criar `presentation/context/AuthContext.tsx`
+    - Mantém estado global ativo de sessão (`user`, `loading`) evitando prop prop drilling
   - `presentation/hooks/useAuth.ts`
     - Expõe: `login()`, `register()`, `logout()`, `user`, `isOnline`
-    - Usa Use Cases do container
+    - Interliga o Contexto com os Use Cases do container
 
 - [ ] **6.2 Tela de Login**
   - `app/(auth)/login.tsx`
@@ -181,48 +196,51 @@
 
 - [ ] **9.1 Tela do Mapa (Home)**
   - `app/(tabs)/map.tsx`
+  - Implementar clustering nativo no MapView (usar `react-native-map-clustering`)
   - `presentation/components/MapMarkerCallout.tsx`
   - Pins com callout → navega para Detalhe
   - Mensagem offline se sem internet
 
 ---
 
-## Fase 10: Sincronização
+## Fase 10: Integração com Backend (Supabase)
 
-- [ ] **10.1 Hook de Sync**
-  - `presentation/hooks/useSync.ts`
-  - Monitora NetInfo → trigger `SyncProspectosUseCase`
-  - Intervalo mínimo entre syncs (30s)
-  - `presentation/hooks/useNetwork.ts` — estado online/offline
+> **Requisito Clean Architecture:** A infraestrutura de nuvem só é implementada após o Domínio, Testes, UseCases e Telas estarem rodando impecavelmente com as camadas simuladas (Mocks).
 
-- [ ] **10.2 Integração na UI**
-  - Badge de pendentes na tab lista
-  - Toast ao completar sync
-  - Loading states
+- [ ] **10.1 Setup do Projeto no Supabase**
+  - Criar tabelas e regras RLS (`profiles`, `prospectos`)
+  - Configurar ambiente de Auth e Storage bucket ("fotos")
+  - Criar `infrastructure/supabase/SupabaseClient.ts`
 
----
+- [ ] **10.2 Gateways Reais (Substituindo os Mocks)**
+  - Implementar `SupabaseAuthGateway.ts` (implements `IAuthGateway`)
+  - Implementar `SupabaseSyncGateway.ts` (implements `ISyncGateway`)
+  - Substituir mocks no contêiner de Injeção de Dependências (`di/container.ts`)
 
-## Fase 11: Supabase Backend
-
-- [ ] **11.1 Edge Function: geocode-prospecto**
-  - Chama Nominatim → UPDATE endereço e bairro
-  - Retry com backoff (rate limit 1 req/s)
-
-- [ ] **11.2 Database Trigger/Webhook**
-  - Trigger on INSERT `public.prospectos`
-  - Chama Edge Function automaticamente
+- [ ] **10.3 Edge Function e Webhooks**
+  - Função no Deno/Supabase que chama Nominatim (Geocoding)
+  - Ativar Database Trigger `on INSERT public.prospectos` chamando a Edge Function
 
 ---
 
-## Fase 12: Testes e Validação
+## Fase 11: Sincronização UI/UX
 
-- [ ] **12.1 Testes manuais**
-  - Fluxo offline: login → captura → lista
-  - Fluxo sync: Wi-Fi → dados sobem
-  - Geocoding: endereço resolvido
-  - Mapa: pins + navegação para detalhe
-  - Logout com pendentes: alerta
+- [ ] **11.1 Hook de Sync Real**
+  - Implementar verificação `NetInfo` em `presentation/hooks/useSync.ts`
+  - Disparar `SyncProspectosUseCase.execute()` de fundo
+- [ ] **11.2 Feedback Visual na UI**
+  - Atualizar badges de pendentes nas tabs
+  - Configurar interceptadores de erro e Toasts de sucesso
 
-- [ ] **12.2 Build Android**
-  - APK de desenvolvimento via `eas build`
-  - Teste em device real (câmera, GPS, offline)
+---
+
+## Fase 12: Build e Homologação Final
+
+- [ ] **12.1 Testes Integrados Físicos**
+  - Testar uso Offline local completo
+  - Re-ativar o Wi-fi, cruzar dados com Postgres, conferir auto-geocoding remoto.
+  
+- [ ] **12.2 Distribuição e Build Android (EAS)**
+  - Validar configuração do `eas.json`
+  - Gerar e instalar APK/AAB do MVP com Expo Application Services
+  - Testes unitários físicos das permissões nativas de gps e câmera no aparelho limpo.
