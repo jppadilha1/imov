@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2f7f34",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#141e15",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>ProspectHome - Offline</title>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased h-screen flex flex-col overflow-hidden">
+<!-- Top App Bar (Material Design 3 Style) -->
+<header class="h-16 flex items-center px-4 bg-background-light dark:bg-background-dark border-b border-primary/10 shrink-0">
+<div class="flex items-center gap-4 w-full">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400">wifi_off</span>
+<h1 class="text-xl font-semibold flex-1">ProspectHome</h1>
+</div>
+</header>
+<!-- Main Content Area: Offline Map Placeholder -->
+<main class="flex-1 flex flex-col items-center justify-center p-6 bg-slate-200 dark:bg-slate-800/50">
+<div class="flex flex-col items-center text-center space-y-4 max-w-xs">
+<div class="w-24 h-24 rounded-full bg-slate-300 dark:bg-slate-700 flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 !text-5xl">wifi_off</span>
+</div>
+<div>
+<h2 class="text-[16px] font-bold text-slate-800 dark:text-slate-200">Sem conexão</h2>
+<p class="text-[14px] text-slate-600 dark:text-slate-400 mt-1">O mapa requer internet</p>
+</div>
+<button class="mt-6 flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-primary text-white shadow-md active:scale-95 transition-transform"><span class="material-symbols-outlined">refresh</span></button>
+</div>
+<!-- Decorative Map Background Pattern (Subtle) -->
+<div class="absolute inset-0 -z-10 opacity-5 pointer-events-none" data-alt="Abstract subtle dots map grid pattern" style="background-image: radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0); background-size: 32px 32px;"></div>
+</main>
+<!-- Bottom Navigation Bar (Material Design 3 Style - 80dp height) -->
+<nav class="h-[80px] bg-background-light dark:bg-background-dark border-t border-primary/10 px-2 shrink-0">
+<div class="flex h-full items-center justify-around">
+<!-- Tab: Mapa (Active) -->
+<a class="flex flex-col items-center justify-center gap-1 flex-1 group" href="#">
+<div class="relative flex items-center justify-center h-8 w-16 bg-primary/20 rounded-full text-primary">
+<span class="material-symbols-outlined fill-1">location_on</span>
+</div>
+<span class="text-xs font-bold text-primary mt-1">Mapa</span>
+</a>
+<!-- Tab: Captura -->
+<a class="flex flex-col items-center justify-center gap-1 flex-1 text-slate-600 dark:text-slate-400 group" href="#">
+<div class="flex items-center justify-center h-8 w-16 rounded-full group-active:bg-primary/10">
+<span class="material-symbols-outlined !text-[28px]">photo_camera</span>
+</div>
+<span class="text-xs font-medium mt-1">Captura</span>
+</a>
+<!-- Tab: Lista -->
+<a class="flex flex-col items-center justify-center gap-1 flex-1 text-slate-600 dark:text-slate-400 group" href="#">
+<div class="flex items-center justify-center h-8 w-16 rounded-full group-active:bg-primary/10">
+<span class="material-symbols-outlined">description</span>
+</div>
+<span class="text-xs font-medium mt-1">Lista</span>
+</a>
+</div>
+</nav>
+</body></html>

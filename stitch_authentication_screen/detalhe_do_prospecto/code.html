@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2f7f34",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#141e15",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Top App Bar -->
+<header class="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md p-4 justify-between border-b border-primary/10">
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-slate-900 dark:text-slate-100">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold leading-tight tracking-tight">Detalhes</h1>
+</div>
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-slate-900 dark:text-slate-100">more_vert</span>
+</button>
+</header>
+<main class="flex-1 overflow-y-auto pb-24">
+<!-- Hero Image -->
+<div class="px-4 py-4">
+<div class="aspect-[16/10] w-full rounded-xl overflow-hidden shadow-sm bg-primary/5">
+<img alt="House facade with garden" class="w-full h-full object-cover" data-alt="Modern house facade with green garden" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABXWZ6ae42Bfwnv8V5RAVsepCqr79byHzYJesqYdJz7_l26WtBU13V0Xpn3Qgg7S55YK9jrdhOIO00ol66ma1S-cVrWtRdElJdmWzGzZMRcI8ebcIBHBPAT3yFPu3zkcEcWzAFqUWt0lkKFaCgRBTNimheh4uog401a38_QyPkR_nznxv53w4paB7RJ0xZB3vL4_jsTDxuQHtp5IFsNY7JKO7lWogmOg8zCA4ykdWQGsKj-QJYmNusGeY081xcCo3b7jKMAeYXhh3W"/>
+</div>
+</div>
+<!-- Basic Info -->
+<div class="px-4 mb-6">
+<h2 class="text-[22px] font-bold leading-tight text-slate-900 dark:text-slate-100">Rua Augusta, 1234</h2>
+<p class="text-base font-medium text-slate-500 dark:text-slate-400">Consolação</p>
+</div>
+<!-- Status Chips -->
+<div class="px-4 mb-8">
+<h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">Status</h3>
+<div class="flex flex-wrap gap-2">
+<div class="flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-full text-sm font-semibold shadow-sm">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+                    Novo
+                </div>
+<div class="bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold border border-primary/20">
+                    Contatado
+                </div>
+<div class="bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold border border-primary/20">
+                    Negociando
+                </div>
+<div class="bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold border border-primary/20">
+                    Fechado
+                </div>
+</div>
+</div>
+<!-- Description -->
+<div class="px-4 mb-8">
+<h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Descrição</h3>
+<div class="bg-white dark:bg-slate-800/50 p-4 rounded-lg border border-primary/5">
+<p class="text-slate-700 dark:text-slate-300 leading-relaxed">
+                    Casa de esquina, portão azul, 2 andares. Proprietário parece motivado.
+                </p>
+</div>
+</div>
+<!-- Info List -->
+<div class="px-4 mb-4">
+<h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Informações</h3>
+<div class="space-y-1">
+<div class="flex items-center gap-4 py-3 border-b border-primary/5">
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">calendar_today</span>
+</div>
+<div>
+<p class="text-sm font-medium text-slate-900 dark:text-slate-100">11/03/2026 às 14:32</p>
+<p class="text-xs text-slate-500">Data de registro</p>
+</div>
+</div>
+<div class="flex items-center gap-4 py-3 border-b border-primary/5">
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">location_on</span>
+</div>
+<div>
+<p class="text-sm font-medium text-slate-900 dark:text-slate-100">-23.5505, -46.6333</p>
+<p class="text-xs text-slate-500">Coordenadas GPS</p>
+</div>
+</div>
+<div class="flex items-center gap-4 py-3">
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">sync</span>
+</div>
+<div>
+<p class="text-sm font-medium text-slate-900 dark:text-slate-100">Sincronizado ✅</p>
+<p class="text-xs text-slate-500">Status na nuvem</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Nav Bar -->
+<nav class="fixed bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark border-t border-primary/10 px-4 pb-6 pt-2 flex justify-between items-center z-50">
+<a class="flex flex-1 flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="text-xs font-medium">Mapa</span>
+</a>
+<a class="flex flex-1 flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-primary transition-colors" href="#">
+<div class="bg-primary rounded-full p-2 -mt-8 shadow-lg shadow-primary/20 mb-1">
+<span class="material-symbols-outlined text-white text-[28px]">photo_camera</span>
+</div>
+<span class="text-xs font-medium">Captura</span>
+</a>
+<a class="flex flex-1 flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined material-symbols-fill">format_list_bulleted</span>
+<span class="text-xs font-bold">Lista</span>
+</a>
+</nav>
+</body></html>
