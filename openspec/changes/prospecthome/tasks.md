@@ -16,7 +16,7 @@
     - `expo-image-picker`, `expo-image-manipulator`, `expo-file-system`
     - `react-native-maps`, `react-native-map-clustering`, `@react-native-community/netinfo`
     - `@supabase/supabase-js`, `uuid`
-  - Instalar e configurar framework de estilos estritamente com `nativewind` e `tailwindcss`
+  - Utilizar a API nativa `StyleSheet` do React Native para a estruturação visual e definição de estilos
   - Instalar biblioteca de ícones `lucide-react-native`
   - Configurar plugins no `app.json` (permissões de Câmera e Localização)
   - Configurar variáveis de ambiente (`.env` com strings do Supabase)

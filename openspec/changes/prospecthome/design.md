@@ -522,7 +522,7 @@ SyncProspectosUseCase.execute()
 | Sync | Foreground via `SyncProspectosUseCase` | Confiabilidade no MVP |
 | Geocoding | DB Trigger → Edge Function | Desacoplamento total |
 | Compressão | 800px, 70-80% quality | Economia de ~96% de espaço |
-| Estilização CSS | `nativewind` | Componentização via Utility-classes de alta adesão no React Native |
+| Estilização CSS | `StyleSheet` nativo | Performance nativa sem sobrecarga de tooling (zero dependencies) e tipagem total integrada no framework |
 | Ícones | `lucide-react-native` | Extenso, elegante e compatível com as regras de preenchimento e stroke do React Native |
 | Testes Unitários | `@testing-library/react-native` | Renderização e verificação de nós virtuais focadas no comportamento do usuário (acessibilidade) |
 | Testes E2E | `Maestro` | Abordagem declarativa baseada em fluxos de tela robustos, garantindo os cenários nativos (permissões, scrolls) |

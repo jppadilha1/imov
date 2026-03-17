@@ -2,7 +2,7 @@ schema: spec-driven
 
 context: |
   Projeto: ProspectHome MVP
-  Stack: App desenvolvido estritamente com React Native e Expo SDK, SQLite (cache offline), Supabase (nuvem), TailwindCSS (NativeWind), Jest.
+  Stack: App desenvolvido estritamente com React Native e Expo SDK, SQLite (cache offline), Supabase (nuvem), StyleSheet nativo, Jest.
   Arquitetura: Clean Architecture Restrita (4 layers: Domain, Application, Infrastructure, Presentation) + DDD.
   Metodologia: Mocks First, Test-Driven Development (TDD) e Offline-first. Todo o aplicativo, fluxos e UI devem rodar e estar testados ANTES de conexão real em nuvem.
 
@@ -17,7 +17,7 @@ rules:
     - "REACT NATIVE & EXPO SDK: App desenvolvido estritamente com React Native e Expo SDK. Evite bibliotecas de terceiros avulsas sempre que o ecossistema oferecer suporte oficial."
     - "RESTRIÇÕES DE HARDWARE E SENSORES: Force o uso do ecossistema Expo onde possível, como em fotos e localização (ex: `expo-image-picker`, `expo-camera`, `expo-location` e `expo-image-manipulator`)."
     - "MAPAS ESTABELECIDOS: Para qualquer renderização ou interação com mapas, defina explicitamente a biblioteca `react-native-maps`."
-    - "UI E ESTILIZAÇÃO: Utilize estritamente `nativewind` para CSS/Estilização. Para iconografia, priorize o pacote `lucide-react-native`."
+    - "UI E ESTILIZAÇÃO: Utilize estritamente a API `StyleSheet` nativa do React Native para estilização. Para iconografia, priorize o pacote `lucide-react-native`."
     - "TESTES ESTABELECIDOS: Para testes E2E/Jornadas de Usuário, utilize obrigatoriamente `Maestro`. Para testes unitários e de componentes de UI, utilize `@testing-library/react-native`."
 
   dados_e_sincronizacao:
@@ -35,5 +35,5 @@ rules:
   ui_ux:
     - "LEI DE HICK: Assegure interfaces que limitem a carga cognitiva do usuário (menos escolhas, botões primários gigantes como a ação de Captura)."
     - "TOUCH TARGETS: Todos os elementos de navegação, chips e campos DEVEM ostentar proporções mínimas adequadas a motoristas parados no trânsito (≥ 48x48dp)."
-    - "CONSISTÊNCIA E ALINHAMENTO: Use exatamente os mesmos tons, tamanhos (Material 3 Defaults via Tailwind/NativeWind) e os ícones designados no wireframe da pasta de UI/UX."
+    - "CONSISTÊNCIA E ALINHAMENTO: Use exatamente os mesmos tons e tamanhos (Material 3 Defaults) e os ícones designados no wireframe da pasta de UI/UX, organizando via `StyleSheet`."
     - "ESTADO OFFLINE ESTÁVEL: Se não houver rede, a UI reflete o estado offline via badges e banners de maneira elegante. O uso sempre recai sobre as respostas cacheadas pelo SQLite."

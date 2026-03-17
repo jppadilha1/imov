@@ -25,7 +25,7 @@ Os Requisitos Não-Funcionais ditam padrões de qualidade, arquitetura e tecnolo
 *   **[RNF-01] Tempo de Resposta da Captura:** O processo de salvar um prospecto offline (foto e metadados) no cache de banco de dados MUST ocorrer de maneira instantânea (em até 1 segundo), sem bloquear a UI.
 *   **[RNF-02] Otimização de Armazenamento:** Todas as fotos capturadas MUST ser redimensionadas para ~800px de largura e comprimidas utilizando padrão JPEG (qualidade 70-80%) antes de serem salvas ou enviadas pela rede.
 *   **[RNF-03] Arquitetura Desacoplada:** O sistema MUST seguir as 4 camadas estritas da *Clean Architecture*, de forma que a camada de Domínio jamais importe pacotes de UI (React Native) ou Infraestrutura (Supabase, SQLite).
-*   **[RNF-04] UI e Estilização Exclusiva:** A aplicação MUST ser estilizada única e exclusivamente via a biblioteca de utility-classes `nativewind` (TailwindCSS para React Native).
+*   **[RNF-04] UI e Estilização Exclusiva:** A aplicação MUST ser estilizada única e exclusivamente via a API nativa de `StyleSheet` do React Native, padronizando um arquivo de temas/constantes globais.
 *   **[RNF-05] Iconografia:** O sistema MUST usar a biblioteca `lucide-react-native` para toda e qualquer representação iconográfica.
 *   **[RNF-06] UX de Tela Plena (Usabilidade Em Trânsito):** Os botões primários de ação (ex: Tirar Foto, Confirmar) e os touch targets de menus DEVEM ser grandes e de fácil engajamento (mínimo de 48x48dp) limitando a carga cognitiva.
 *   **[RNF-07] Cobertura de Testes E2E (Integração Física):** O sistema MUST ser validado via fluxos nativos e declarativos através do framework `Maestro` para assegurar o funcionamento dos modais nativos (GPS/Câmera) em jornada completa.
