@@ -14,7 +14,7 @@ Corretores de imóveis passam horas percorrendo bairros em busca de imóveis à 
 
 ## Solution
 
-App mobile (Expo/React Native, Android-first) com:
+App mobile (Expo/React Native, Cross-platform Android e iOS) com:
 - **Captura offline**: foto + GPS salvos localmente (SQLite + FileSystem)
 - **Sync automático**: quando online, dados sobem para Supabase (Postgres + Storage)
 - **Geocoding reverso automático**: Supabase Edge Function + Nominatim resolve endereços
@@ -62,7 +62,6 @@ O projeto adota três pilares de engenharia de software para garantir manutenibi
 
 ### Out of Scope (Futuro)
 - Background sync (v2)
-- Suporte iOS
 - Compartilhamento de prospectos entre corretores
 - Notificações push
 - Busca/filtro avançado de prospectos

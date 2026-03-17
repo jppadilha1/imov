@@ -336,9 +336,40 @@ export const syncProspectos = new SyncProspectosUseCase(
 - Orquestrado pelo `SyncProspectosUseCase` via hook `useSync()`
 - Background sync planejado para v2
 
+## Native Expo Configuration (app.json / app.config.js)
+
+Para garantir que o hardware seja acessado corretamente, as permissões nativas MUST ser configuradas no `app.json` ou `app.config.js` através dos plugins oficiais do Expo:
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Permita que o ProspectHome acesse sua localização para salvar as coordenadas exatas do imóvel capturado."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permita que o ProspectHome acesse sua câmera para fotografar as fachadas dos imóveis."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permita o acesso à galeria caso queira anexar uma foto existente do imóvel."
+        }
+      ]
+    ]
+  }
+}
+```
+
 ## Data Model
 
-### SQLite (Local)
+### SQLite (Local — Single Source of Truth do App)
 
 ```sql
 CREATE TABLE session (
@@ -361,8 +392,13 @@ CREATE TABLE prospectos (
   bairro TEXT,
   notas TEXT,
   status TEXT DEFAULT 'novo',
-  sync_status TEXT DEFAULT 'pending',
+  
+  -- Controle de Sincronização e Erros
+  sync_status TEXT DEFAULT 'pending', -- pending | synced | error
+  sync_error_message TEXT,
+  sync_retry_count INTEGER DEFAULT 0,
   remote_id TEXT,
+  
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
@@ -387,7 +423,10 @@ CREATE TABLE public.prospectos (
   endereco TEXT,
   bairro TEXT,
   notas TEXT,
-  status TEXT DEFAULT 'novo',
+  
+  -- Enum Types ou check constraint
+  status TEXT DEFAULT 'novo' CHECK (status IN ('novo', 'contatado', 'negociando', 'fechado')),
+  
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -440,7 +479,22 @@ LogoutUseCase.execute()
   → IPhotoStorage.clearAll()
 ```
 
-## Sync Flow
+## Gerenciamento do Bucket (Storage Workflow)
+
+O ciclo de vida físico de uma foto capturada é estritamente controlado para não estourar a RAM do dispositivo e otimizar a rede:
+
+1. **Memória Temporária (RAM/Cache da Câmera):** A câmera nativa (`expo-image-picker`) devolve uma URI temporária (`file:///.../Cache/...`) que aponta para uma imagem pesada (~5 MB).
+2. **Compressão (RAM → Cache):** O `expo-image-manipulator` carrega a URI, redimensiona para 800px de largura e comprime para JPEG (70-80%), salvando uma nova URI no cache.
+3. **Persistência Local (FileSystem):** O `FileSystemPhotoStorage` copia o arquivo comprimido do cache temporário para o diretório de documentos permanente do app (`FileSystem.documentDirectory`), isolando-o de limpezas automáticas do SO. O path persistido é salvo no SQLite.
+4. **Multipart Upload (FileSystem → Supabase Storage):** Durante a sincronização, o `SupabaseSyncGateway` lê o arquivo como *buffer/base64* do filesystem e realiza um *multipart upload* (usando a API do Supabase Storage / `FormData`) endereçando ao bucket `fotos` no path `/{corretor_id}/{prospecto_id}.jpg`.
+
+## Sync Flow (Mecanismo de Sincronização)
+
+O mecanismo exato de sincronização do MVP roda em **Foreground (Sincronização Agressiva e Transparente):**
+
+- **Gatilho de Montagem:** A sincronização roda automaticamente no momento da montagem (mount) do componente principal da interface (`MapScreen` ou `ListScreen` principal) através do hook `useSync()`.
+- **Gatilho de Rede:** O `useSync()` reage ativamente a mudanças no estado da rede (via `NetInfo`). Assim que o dispositivo transiciona de Offline para Online, o processo de push/pull inicia imediatamente sem intervenção do usuário.
+- **Isolamento de UI:** O processo roda em Promises apartadas da thread principal da UI. A interface deve apenas reagir de forma passiva através de indicadores sutis (ex: `SyncBadge` rodando).
 
 ```
 SyncProspectosUseCase.execute()
@@ -468,3 +522,7 @@ SyncProspectosUseCase.execute()
 | Sync | Foreground via `SyncProspectosUseCase` | Confiabilidade no MVP |
 | Geocoding | DB Trigger → Edge Function | Desacoplamento total |
 | Compressão | 800px, 70-80% quality | Economia de ~96% de espaço |
+| Estilização CSS | `nativewind` | Componentização via Utility-classes de alta adesão no React Native |
+| Ícones | `lucide-react-native` | Extenso, elegante e compatível com as regras de preenchimento e stroke do React Native |
+| Testes Unitários | `@testing-library/react-native` | Renderização e verificação de nós virtuais focadas no comportamento do usuário (acessibilidade) |
+| Testes E2E | `Maestro` | Abordagem declarativa baseada em fluxos de tela robustos, garantindo os cenários nativos (permissões, scrolls) |

@@ -16,10 +16,12 @@
     - `expo-image-picker`, `expo-image-manipulator`, `expo-file-system`
     - `react-native-maps`, `react-native-map-clustering`, `@react-native-community/netinfo`
     - `@supabase/supabase-js`, `uuid`
-  - Instalar e configurar framework de estilos (ex: `nativewind` e `tailwindcss`)
+  - Instalar e configurar framework de estilos estritamente com `nativewind` e `tailwindcss`
+  - Instalar biblioteca de ícones `lucide-react-native`
   - Configurar plugins no `app.json` (permissões de Câmera e Localização)
   - Configurar variáveis de ambiente (`.env` com strings do Supabase)
   - Configurar ambiente de TDD: instalar `jest`, `jest-expo` e `@testing-library/react-native`
+  - Inicializar estrutura base do `Maestro` para testes E2E
 
 - [ ] **1.2 Estrutura de pastas Clean Architecture**
   - Criar estrutura: `src/domain/`, `src/application/`, `src/infrastructure/`, `src/presentation/`, `src/di/`
@@ -234,13 +236,14 @@
 
 ---
 
-## Fase 12: Build e Homologação Final
+## Fase 12: Build e Homologação Final (Qualidade)
 
-- [ ] **12.1 Testes Integrados Físicos**
-  - Testar uso Offline local completo
-  - Re-ativar o Wi-fi, cruzar dados com Postgres, conferir auto-geocoding remoto.
+- [ ] **12.1 Testes E2E Nativos (Maestro)**
+  - Escrever fluxos declarativos (YAML) do Maestro para mockar a navegação e alertas nativos
+  - Rodar o fluxo offline local: negar GPS (fallback UI), aceitar GPS, simular lentidão de rede
+  - Garantir navegações críticas cobrindo as premissas RFC 2119
   
-- [ ] **12.2 Distribuição e Build Android (EAS)**
-  - Validar configuração do `eas.json`
-  - Gerar e instalar APK/AAB do MVP com Expo Application Services
-  - Testes unitários físicos das permissões nativas de gps e câmera no aparelho limpo.
+- [ ] **12.2 Distribuição e Build (EAS)**
+  - Validar configuração do `eas.json` para os perfis de ambos os mundos.
+  - Gerar e instalar os binários do MVP (APK/AAB para Android e IPA/TestFlight para iOS) com Expo Application Services
+  - Testes exploratórios físicos em aparelhos Android e iOS limpos

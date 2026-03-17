@@ -2,7 +2,7 @@ schema: spec-driven
 
 context: |
   Projeto: ProspectHome MVP
-  Stack: Expo (React Native), SQLite, Supabase, TailwindCSS (NativeWind), Jest.
+  Stack: App desenvolvido estritamente com React Native e Expo SDK, SQLite (cache offline), Supabase (nuvem), TailwindCSS (NativeWind), Jest.
   Arquitetura: Clean Architecture Restrita (4 layers: Domain, Application, Infrastructure, Presentation) + DDD.
   Metodologia: Mocks First, Test-Driven Development (TDD) e Offline-first. Todo o aplicativo, fluxos e UI devem rodar e estar testados ANTES de conexão real em nuvem.
 
@@ -11,15 +11,29 @@ rules:
     - "🚨 STEP-BY-STEP RIGOROSO: Execute apenas UMA tarefa por vez relatada no plano (tasks.md). NUNCA gere blocos massivos de código sem revisão humana."
     - "🧩 FRACIONAMENTO DE TASKS: Se prever que implementar ou refatorar algo exigirá mexer com mais de 2 arquivos complexos de uma vez, FRACIONE a task e valide o detalhamento antes de codificar."
     - "🛑 CONECTIVIDADE NO FINAL: Não adiante integrações de rede/banco de dados em produção antes da sua vez nas fases. UI, Tests e Casos de Uso funcionam 100% locamente."
-  
+
+  tech_stack_e_bibliotecas:
+    - "TARGET DA APLICAÇÃO: O MVP é nativamente Cross-Platform (Android e iOS). Sempre utilize APIs do Expo que abstraiam ambas as plataformas de forma equivalente (ex: SafeAreaView garantindo o notch do iOS e a status bar do Android)."
+    - "REACT NATIVE & EXPO SDK: App desenvolvido estritamente com React Native e Expo SDK. Evite bibliotecas de terceiros avulsas sempre que o ecossistema oferecer suporte oficial."
+    - "RESTRIÇÕES DE HARDWARE E SENSORES: Force o uso do ecossistema Expo onde possível, como em fotos e localização (ex: `expo-image-picker`, `expo-camera`, `expo-location` e `expo-image-manipulator`)."
+    - "MAPAS ESTABELECIDOS: Para qualquer renderização ou interação com mapas, defina explicitamente a biblioteca `react-native-maps`."
+    - "UI E ESTILIZAÇÃO: Utilize estritamente `nativewind` para CSS/Estilização. Para iconografia, priorize o pacote `lucide-react-native`."
+    - "TESTES ESTABELECIDOS: Para testes E2E/Jornadas de Usuário, utilize obrigatoriamente `Maestro`. Para testes unitários e de componentes de UI, utilize `@testing-library/react-native`."
+
+  dados_e_sincronizacao:
+    - "ARQUITETURA DE DADOS CLARA: Defina o Supabase como a fonte da verdade na nuvem (PostgREST API + Storage Bucket) e o SQLite estritamente para suporte offline e cache local (Single Source of Truth para a UI)."
+    - "SYNC ASSÍNCRONO e BACKGROUND: O upload de prospectos e de fotos para o Supabase só deve acontecer em background, quando houver conectividade. Nenhum fluxo da UI deve travar aguardando um upload."
+    - "COMPRESSÃO OBRIGATÓRIA: Mídias capturadas DEVEM ser obrigatoriamente redimensionadas e comprimidas localmente (~200KB via expo-image-manipulator) ANTES da fila de upload para o Storage."
+    - "INTELIGÊNCIA DELEGADA (BACKEND): Operações externas custosas (como resolver o endereço via Geocoding a partir de lat/lng) devem ocorrer no backend após o sync. O app apenas captura as coordenadas offline e aguarda o pull."
+
   arquitetura_e_codigo:
-    - "CLEAN ARCHITECTURE: A camada de DOMÍNIO tem ZERO dependências do framework (nem React, nem Expo, nem API). A dependência aponta sempre para dentro."
+    - "CLEAN ARCHITECTURE: A camada de DOMÍNIO tem ZERO dependências do framework (nem React, Expo ou Supabase). A dependência aponta sempre para dentro."
     - "MOCKS PRIMEIRO: Na infraestrutura primária, APIs e Nuvem (Gateways) são injetadas (Mocked) via Dependency Injection Container. Supabase de verdade entra por último."
-    - "TDD OBRIGATÓRIO: Crie os testes unitários (ou snapshots da UI com React Native Testing Library) cobrindo regras *antes* do seu código concreto."
-    - "CI/CD EARLY: O projeto contará com um workflow que garanta a bateria de testes e Linter rodando desde o início da fase de setup."
-  
+    - "TDD OBRIGATÓRIO: Crie os testes unitários (ou snapshots da UI) cobrindo regras *antes* do seu código concreto."
+    - "CI/CD EARLY: Garanta a bateria de testes e Linter rodando desde o início da fase de setup."
+
   ui_ux:
     - "LEI DE HICK: Assegure interfaces que limitem a carga cognitiva do usuário (menos escolhas, botões primários gigantes como a ação de Captura)."
     - "TOUCH TARGETS: Todos os elementos de navegação, chips e campos DEVEM ostentar proporções mínimas adequadas a motoristas parados no trânsito (≥ 48x48dp)."
-    - "CONSISTÊNCIA E ALINHAMENTO: Use exatamente os mesmos tons, tamanhos (Material 3 Defaults via Tailwind/NativeWind) e os ícones designados no wireframe da pasta de UI/UX. Repetição leva a familiaridade."
-    - "ESTADO OFFLINE NÃO BLOQUEANTE: Se não houver rede, a UI reflete via badges e banners de maneira elegante. Nenhum fluxo primordial trava aguardando timeout de internet."
+    - "CONSISTÊNCIA E ALINHAMENTO: Use exatamente os mesmos tons, tamanhos (Material 3 Defaults via Tailwind/NativeWind) e os ícones designados no wireframe da pasta de UI/UX."
+    - "ESTADO OFFLINE ESTÁVEL: Se não houver rede, a UI reflete o estado offline via badges e banners de maneira elegante. O uso sempre recai sobre as respostas cacheadas pelo SQLite."
