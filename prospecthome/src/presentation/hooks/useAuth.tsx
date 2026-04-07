@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { container } from '../../di/container';
 import { Corretor } from '../../domain/entities/Corretor';
 import { LoginUseCase } from '../../application/use-cases/LoginUseCase';
+import { RegisterUseCase } from '../../application/use-cases/RegisterUseCase';
 import { CheckSessionUseCase } from '../../application/use-cases/CheckSessionUseCase';
 import { LogoutUseCase } from '../../application/use-cases/LogoutUseCase';
 
@@ -9,6 +10,7 @@ type AuthContextType = {
   user: Corretor | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<void>;
+  register: (email: string, pass: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -20,6 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Lazy loading instances to avoid issues in tests or di race conditions
   const getLoginUseCase = () => new LoginUseCase(container.authGateway, container.sessionRepository);
+  const getRegisterUseCase = () => new RegisterUseCase(container.authGateway, container.sessionRepository);
   const getCheckSessUseCase = () => new CheckSessionUseCase(container.sessionRepository);
   const getLogoutUseCase = () => new LogoutUseCase(container.authGateway, container.sessionRepository);
 
@@ -46,6 +49,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const register = async (email: string, pass: string, name: string) => {
+    setLoading(true);
+    try {
+      const res = await getRegisterUseCase().execute(email, pass, name);
+      setUser(res.corretor);
+    } catch (e) {
+      setUser(null);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = async () => {
     setLoading(true);
     try {
@@ -57,7 +73,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -2,7 +2,6 @@ import { IAuthGateway } from "../../domain/repositories/IAuthGateway";
 import { Corretor } from "../../domain/entities/Corretor";
 
 export class MockAuthGateway implements IAuthGateway {
-  private createMockResponse(email: string, nome?: string) {
   async login(email: string, pass: string): Promise<{ corretor: Corretor; token: string }> {
     if (email === "erro@teste.com") {
       throw new Error("Authentication failed");
