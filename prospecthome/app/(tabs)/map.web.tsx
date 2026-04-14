@@ -5,33 +5,13 @@ import {
   Text,
   ActivityIndicator,
   TouchableOpacity,
-  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MapView, { Marker, Callout } from 'react-native-maps';
 import { useProspectos } from '../../hooks/useProspectos';
-import { router } from 'expo-router';
 import { RefreshCw, Search, Plus, Minus, Navigation } from 'lucide-react-native';
-import { Prospecto } from '../../src/domain/entities/Prospecto';
-import { ProspectPreviewCard } from '../../components/ProspectPreviewCard';
 
 export default function MapScreen() {
   const { prospectos, loading } = useProspectos();
-  const [selectedProspect, setSelectedProspect] = React.useState<Prospecto | null>(null);
-  const mapRef = React.useRef<MapView>(null);
-
-  const initialRegion = {
-    latitude:
-      prospectos.length > 0
-        ? prospectos[0].coordinates.latitude
-        : -23.5505,
-    longitude:
-      prospectos.length > 0
-        ? prospectos[0].coordinates.longitude
-        : -46.6333,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  };
 
   if (loading && prospectos.length === 0) {
     return (
@@ -40,14 +20,6 @@ export default function MapScreen() {
       </View>
     );
   }
-
-  const handleMarkerPress = (p: Prospecto) => {
-    setSelectedProspect(p);
-  };
-
-  const handleMapPress = () => {
-    setSelectedProspect(null);
-  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -59,38 +31,18 @@ export default function MapScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Map */}
+      {/* Map Fallback for Web */}
       <View style={styles.mapContainer}>
-        <MapView
-          ref={mapRef}
-          style={styles.map}
-          initialRegion={initialRegion}
-          onPress={handleMapPress}
-        >
-          {prospectos.map((p) => (
-            <Marker
-              key={p.id}
-              coordinate={{
-                latitude: p.coordinates.latitude,
-                longitude: p.coordinates.longitude,
-              }}
-              onPress={(e) => {
-                e.stopPropagation();
-                handleMarkerPress(p);
-              }}
-              pinColor="#2e7d32"
-            />
-          ))}
-        </MapView>
-
-        {/* Selected Prospect Preview Card */}
-        {selectedProspect && (
-          <ProspectPreviewCard 
-            prospecto={selectedProspect}
-            onClose={() => setSelectedProspect(null)}
-            onDetails={(id) => router.push(`/(tabs)/list/${id}`)}
-          />
-        )}
+        <View style={styles.webFallbackContainer}>
+          <Text style={styles.webFallbackTitle}>Mapa indisponível na Web</Text>
+          <Text style={styles.webFallbackText}>
+            A biblioteca react-native-maps requer integração nativa (iOS/Android).
+            Para testar a funcionalidade do mapa, abra o app no emulador ou dispositivo físico usando o Expo Go.
+          </Text>
+          <Text style={styles.webFallbackText}>
+            Prospectos retornados: {prospectos.length}
+          </Text>
+        </View>
 
         {/* Floating Controls */}
         <View style={styles.controls}>
@@ -151,9 +103,26 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
     position: 'relative',
+    backgroundColor: '#e2e8f0',
   },
-  map: {
-    ...StyleSheet.absoluteFillObject,
+  webFallbackContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  webFallbackTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0f172a',
+    marginBottom: 8,
+  },
+  webFallbackText: {
+    fontSize: 14,
+    color: '#334155',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 8,
   },
   controls: {
     position: 'absolute',
@@ -193,74 +162,5 @@ const styles = StyleSheet.create({
   zoomDivider: {
     height: 1,
     backgroundColor: '#f1f5f9',
-  },
-  // Callout styles
-  calloutBubble: {
-    width: 280,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-    borderWidth: 1,
-    borderColor: '#f1f5f9',
-  },
-  calloutContent: {
-    flexDirection: 'row',
-    padding: 12,
-    gap: 12,
-  },
-  calloutImagePlaceholder: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    backgroundColor: '#e2e8f0',
-    overflow: 'hidden',
-  },
-  calloutImage: {
-    width: 80,
-    height: 80,
-  },
-  calloutInfo: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  calloutChip: {
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(46, 125, 50, 0.1)',
-    paddingVertical: 2,
-    paddingHorizontal: 8,
-    borderRadius: 4,
-    marginBottom: 4,
-  },
-  calloutChipText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#2e7d32',
-    textTransform: 'uppercase',
-  },
-  calloutTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#0f172a',
-    lineHeight: 18,
-  },
-  calloutSubtitle: {
-    fontSize: 12,
-    color: '#64748b',
-  },
-  calloutLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: 4,
-  },
-  calloutLinkText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#2e7d32',
   },
 });

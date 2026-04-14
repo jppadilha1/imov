@@ -1,9 +1,15 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useCapture } from '../../src/presentation/hooks/useCapture';
-import { OfflineBanner } from '../../src/presentation/components/OfflineBanner';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCapture } from '../../hooks/useCapture';
 import { router } from 'expo-router';
-import { Camera } from 'lucide-react-native';
+import { Camera, MapPin, ArrowLeft } from 'lucide-react-native';
 
 export default function CaptureScreen() {
   const { capture, loading, error } = useCapture();
@@ -12,8 +18,7 @@ export default function CaptureScreen() {
     try {
       const prospecto = await capture();
       if (prospecto) {
-        // Redireciona para a lista após sucesso
-        router.push('/list');
+        router.push('/(tabs)/list');
       }
     } catch (e) {
       // Erro já tratado no hook/alert
@@ -21,98 +26,157 @@ export default function CaptureScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <OfflineBanner />
-      
-      <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <Camera size={80} color="#0a2a43" />
-        </View>
-        
-        <Text style={styles.title}>Nova Prospecção</Text>
-        <Text style={styles.subtitle}>
-          Pressione o botão abaixo para abrir a câmera e capturar a fachada do imóvel.
-        </Text>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Top App Bar */}
+      <View style={styles.appBar}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.appBarBtn}
+        >
+          <ArrowLeft size={24} color="#334155" />
+        </TouchableOpacity>
+        <Text style={styles.appBarTitle}>Nova Captura</Text>
+      </View>
 
-        {loading ? (
-          <View testID="loading-indicator" style={styles.loadingBox}>
-            <ActivityIndicator size="large" color="#0a2a43" />
-            <Text style={styles.loadingText}>Capturando dados e GPS...</Text>
-          </View>
-        ) : (
-          <TouchableOpacity 
-            style={styles.btn} 
-            onPress={handleCapture}
-          >
-            <Text style={styles.btnText}>CAPTURAR IMÓVEL</Text>
-          </TouchableOpacity>
-        )}
+      {/* Main Content */}
+      <View style={styles.content}>
+        {/* Camera Interaction Area */}
+        <View style={styles.cameraArea}>
+          <Camera size={80} color="#cbd5e1" />
+          <Text style={styles.cameraText}>Toque para fotografar</Text>
+        </View>
+
+        {/* Action Button */}
+        <View style={styles.actionContainer}>
+          {loading ? (
+            <View testID="loading-indicator" style={styles.loadingBox}>
+              <ActivityIndicator size="large" color="#2e7d32" />
+              <Text style={styles.loadingText}>Capturando dados e GPS...</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.btn}
+              onPress={handleCapture}
+              activeOpacity={0.85}
+            >
+              <Camera size={20} color="#fff" />
+              <Text style={styles.btnText}>TIRAR FOTO</Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
         {error && <Text style={styles.errorText}>{error}</Text>}
       </View>
-    </View>
+
+      {/* GPS Status Bar */}
+      <View style={styles.gpsBar}>
+        <MapPin size={16} color="#2e7d32" />
+        <Text style={styles.gpsText}>Aguardando GPS...</Text>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
+  },
+  appBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 64,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+  },
+  appBarBtn: {
+    padding: 8,
+    marginLeft: -8,
+    borderRadius: 20,
+  },
+  appBarTitle: {
+    marginLeft: 16,
+    fontSize: 20,
+    fontWeight: '500',
+    color: '#0f172a',
   },
   content: {
     flex: 1,
-    padding: 32,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 24,
+    gap: 32,
   },
-  iconContainer: {
-    marginBottom: 24,
-    backgroundColor: '#f0f4f8',
-    padding: 30,
-    borderRadius: 100,
+  cameraArea: {
+    width: 256,
+    height: 256,
+    borderRadius: 24,
+    backgroundColor: '#f8fafc',
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: '#e2e8f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#0a2a43',
-    marginBottom: 8,
-  },
-  subtitle: {
+  cameraText: {
     fontSize: 16,
-    color: '#6c7a89',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 40,
+    fontWeight: '500',
+    color: '#64748b',
+    marginTop: 8,
+  },
+  actionContainer: {
+    width: '100%',
+    maxWidth: 280,
+    paddingTop: 16,
   },
   loadingBox: {
     alignItems: 'center',
+    gap: 12,
   },
   loadingText: {
-    marginTop: 12,
-    color: '#0a2a43',
+    color: '#2e7d32',
     fontWeight: '600',
+    fontSize: 14,
   },
   btn: {
-    backgroundColor: '#0a2a43',
-    paddingVertical: 18,
-    paddingHorizontal: 32,
-    borderRadius: 12,
-    width: '100%',
+    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#0a2a43',
+    justifyContent: 'center',
+    gap: 12,
+    backgroundColor: '#2e7d32',
+    paddingVertical: 18,
+    borderRadius: 9999,
+    shadowColor: 'rgba(46, 125, 50, 0.2)',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 1,
     shadowRadius: 8,
     elevation: 6,
   },
   btnText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: 14,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   errorText: {
-    color: '#e53e3e',
-    marginTop: 16,
+    color: '#dc2626',
     textAlign: 'center',
+    fontSize: 14,
+  },
+  gpsBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(46, 125, 50, 0.05)',
+  },
+  gpsText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#2e7d32',
   },
 });

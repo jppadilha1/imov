@@ -8,7 +8,7 @@ export class PhotoPath {
     
     const lowerPath = path.toLowerCase();
     if (!lowerPath.endsWith(".jpg") && !lowerPath.endsWith(".jpeg") && !lowerPath.endsWith(".png")) {
-      throw new Error("A foto deve ser um arquivo JPEG ou PNG válido.");
+      throw new Error(`A foto deve ser um arquivo JPEG ou PNG válido. Recebido: ${path}`);
     }
 
     this._path = path.trim();

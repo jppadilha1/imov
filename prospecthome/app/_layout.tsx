@@ -1,5 +1,5 @@
 import React from 'react';
-import { AuthProvider } from '../src/presentation/hooks/useAuth';
+import { AuthProvider } from '../contexts/AuthContext';
 import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 

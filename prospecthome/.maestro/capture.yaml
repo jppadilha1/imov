@@ -1,0 +1,12 @@
+appId: com.imov.prospecthome
+---
+- launchApp
+- runFlow:
+    when:
+      visible: "ENTRAR"
+    file: login.yaml
+- tapOn: "Captura"
+- assertVisible: "Nova Captura"
+- tapOn: "TIRAR FOTO"
+- assertVisible: "Lista"
+- assertVisible: "pendentes de sincronização"

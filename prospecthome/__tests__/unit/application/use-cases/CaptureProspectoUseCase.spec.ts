@@ -25,8 +25,8 @@ describe("CaptureProspectoUseCase", () => {
     };
     
     // Default mocks
-    mockPhotoSvc.capturePhoto.mockResolvedValue("file:///tmp/raw.jpg");
-    mockPhotoSvc.compressPhoto.mockResolvedValue("file:///tmp/comp.jpg");
+    mockPhotoSvc.capturePhoto.mockResolvedValue("file:/tmp/raw.jpg");
+    mockPhotoSvc.compressPhoto.mockResolvedValue("file:/tmp/comp.jpg");
     mockLocationSvc.getCurrentPosition.mockResolvedValue(new Coordinates(10, 20));
     mockStorage.savePhoto.mockResolvedValue(new PhotoPath("final.jpg"));
     mockRepo.save.mockResolvedValue(undefined);
@@ -43,9 +43,9 @@ describe("CaptureProspectoUseCase", () => {
     const prospecto = await useCase.execute("user-1");
 
     expect(mockPhotoSvc.capturePhoto).toHaveBeenCalled();
-    expect(mockPhotoSvc.compressPhoto).toHaveBeenCalledWith("file:///tmp/raw.jpg");
+    expect(mockPhotoSvc.compressPhoto).toHaveBeenCalledWith("file:/tmp/raw.jpg");
     expect(mockLocationSvc.getCurrentPosition).toHaveBeenCalled();
-    expect(mockStorage.savePhoto).toHaveBeenCalledWith("file:///tmp/comp.jpg");
+    expect(mockStorage.savePhoto).toHaveBeenCalledWith("file:/tmp/comp.jpg");
     
     expect(mockRepo.save).toHaveBeenCalled();
     const saved = mockRepo.save.mock.calls[0][0];

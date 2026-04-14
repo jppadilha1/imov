@@ -1,17 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { useAuth } from '../../src/presentation/hooks/useAuth';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import { useAuth } from '../../hooks/useAuth';
 import { router } from 'expo-router';
+import { Home, Search, Mail, Lock, Eye, EyeOff, User } from 'lucide-react-native';
 
 export default function RegisterScreen() {
   const { register, user, loading } = useAuth();
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (user) {
-      router.replace('/home');
+      router.replace('/(tabs)/map');
     }
   }, [user]);
 
@@ -20,37 +32,56 @@ export default function RegisterScreen() {
     try {
       await register(email, senha, nome);
     } catch (e: any) {
-      alert("Erro no registro: " + e.message);
+      alert('Erro no registro: ' + e.message);
     }
   };
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.header}>
-          <Text style={styles.title}>ProspectHome</Text>
-          <Text style={styles.subtitle}>Criar conta de Corretor</Text>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Icon Section */}
+        <View style={styles.iconWrapper}>
+          <View style={styles.iconCircle}>
+            <Home size={48} color="#2e7d32" />
+            <View style={styles.searchBadge}>
+              <Search size={16} color="#2e7d32" />
+            </View>
+          </View>
         </View>
 
-        <View style={styles.card}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Nome Completo</Text>
-            <TextInput 
-              style={styles.input} 
-              placeholder="Nome Completo" 
+        {/* Header Section */}
+        <View style={styles.header}>
+          <Text style={styles.title}>ProspectHome</Text>
+          <Text style={styles.subtitle}>Crie sua conta de Corretor</Text>
+        </View>
+
+        {/* Form Section */}
+        <View style={styles.form}>
+          {/* Name Field */}
+          <View style={styles.inputContainer}>
+            <User size={22} color="#94a3b8" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Nome Completo"
+              placeholderTextColor="#94a3b8"
               value={nome}
               onChangeText={setNome}
             />
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>E-mail</Text>
-            <TextInput 
-              style={styles.input} 
-              placeholder="E-mail" 
+          {/* Email Field */}
+          <View style={styles.inputContainer}>
+            <Mail size={22} color="#94a3b8" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="E-mail"
+              placeholderTextColor="#94a3b8"
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -58,21 +89,35 @@ export default function RegisterScreen() {
             />
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Senha</Text>
-            <TextInput 
-              style={styles.input} 
-              placeholder="Senha" 
-              secureTextEntry
+          {/* Password Field */}
+          <View style={styles.inputContainer}>
+            <Lock size={22} color="#94a3b8" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Senha"
+              placeholderTextColor="#94a3b8"
+              secureTextEntry={!showPassword}
               value={senha}
               onChangeText={setSenha}
             />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeBtn}
+            >
+              {showPassword ? (
+                <EyeOff size={22} color="#94a3b8" />
+              ) : (
+                <Eye size={22} color="#94a3b8" />
+              )}
+            </TouchableOpacity>
           </View>
 
-          <TouchableOpacity 
-            style={styles.btn} 
+          {/* Register Button */}
+          <TouchableOpacity
+            style={styles.btn}
             onPress={handleRegister}
             disabled={loading}
+            activeOpacity={0.85}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
@@ -80,14 +125,18 @@ export default function RegisterScreen() {
               <Text style={styles.btnText}>CRIAR CONTA</Text>
             )}
           </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.btnSecondary} 
-            onPress={() => router.back()}
-          >
-            <Text style={styles.btnSecondaryText}>VOLTAR</Text>
-          </TouchableOpacity>
         </View>
+
+        {/* Footer Section */}
+        <TouchableOpacity
+          style={styles.footer}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.footerText}>
+            Já tem conta?{' '}
+            <Text style={styles.footerBold}>Entrar</Text>
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -101,73 +150,98 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 24,
+  },
+  iconWrapper: {
+    marginBottom: 8,
+  },
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(46, 125, 50, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  searchBadge: {
+    position: 'absolute',
+    right: -2,
+    bottom: -2,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 2,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 48,
+    marginTop: 16,
+    marginBottom: 24,
   },
   title: {
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#0a2a43',
-    letterSpacing: -1,
+    color: '#0f172a',
+    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#6c7a89',
-    marginTop: 4,
+    color: '#64748b',
+    marginTop: 8,
   },
-  card: {
-    backgroundColor: '#f8f9fa',
-    padding: 24,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+  form: {
+    width: '100%',
+    maxWidth: 480,
+    gap: 16,
+    marginTop: 8,
   },
-  inputGroup: {
-    marginBottom: 20,
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
+    borderRadius: 12,
+    backgroundColor: 'transparent',
+    height: 64,
+    paddingHorizontal: 16,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 6,
-    marginLeft: 4,
+  inputIcon: {
+    marginRight: 12,
   },
   input: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    padding: 14,
-    borderRadius: 10,
-    fontSize: 16,
-    color: '#111827',
+    flex: 1,
+    fontSize: 18,
+    color: '#0f172a',
+    padding: 0,
+  },
+  eyeBtn: {
+    padding: 4,
   },
   btn: {
-    backgroundColor: '#0a2a43',
-    padding: 16,
-    borderRadius: 10,
+    backgroundColor: '#2e7d32',
+    paddingVertical: 18,
+    borderRadius: 12,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 8,
+    shadowColor: '#2e7d32',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   btnText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 17,
+    fontSize: 16,
+    letterSpacing: 2,
   },
-  btnSecondary: {
-    padding: 16,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 8,
+  footer: {
+    marginTop: 24,
   },
-  btnSecondaryText: {
-    color: '#0a2a43',
-    fontWeight: '600',
-    fontSize: 15,
-  }
+  footerText: {
+    fontSize: 16,
+    color: '#2e7d32',
+  },
+  footerBold: {
+    fontWeight: 'bold',
+  },
 });

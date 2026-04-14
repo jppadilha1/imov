@@ -1,12 +1,10 @@
 import { container } from "../../../src/di/container";
-import { MockAuthGateway } from "../../../src/infrastructure/mock/MockAuthGateway";
-import { SQLiteProspectoRepository } from "../../../src/infrastructure/database/SQLiteProspectoRepository";
+import { MockProspectoRepository } from "../../../src/infrastructure/mock/MockProspectoRepository";
 
 describe("DI Container", () => {
   it("deve instanciar e retornar as dependencias (singleton)", () => {
     expect(container).toBeDefined();
-    expect(container.authGateway).toBeInstanceOf(MockAuthGateway);
-    expect(container.prospectoRepository).toBeInstanceOf(SQLiteProspectoRepository);
+    expect(container.prospectoRepository).toBeInstanceOf(MockProspectoRepository);
   });
 
   it("deve retornar exatamente a mesma instancia para module loaders (singleton)", () => {

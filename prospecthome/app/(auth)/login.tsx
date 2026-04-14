@@ -1,16 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { useAuth } from '../../src/presentation/hooks/useAuth';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import { useAuth } from '../../hooks/useAuth';
 import { router } from 'expo-router';
+import { Home, Search, Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 
 export default function LoginScreen() {
   const { login, user, loading } = useAuth();
   const [email, setEmail] = useState('sucesso@teste.com');
   const [senha, setSenha] = useState('123456');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (user) {
-      router.replace('/home');
+      router.replace('/(tabs)/map');
     }
   }, [user]);
 
@@ -19,36 +31,52 @@ export default function LoginScreen() {
     try {
       await login(email, senha);
     } catch (e: any) {
-      // In a real app we'd use a better UI toast, but following spec/tests
-      alert("Erro no login: " + e.message);
+      alert(`Erro: ${e.message}`);
     }
   };
 
   if (loading && !user) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0a2a43" />
+        <ActivityIndicator size="large" color="#2e7d32" />
       </View>
     );
   }
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.header}>
-          <Text style={styles.title}>ProspectHome</Text>
-          <Text style={styles.subtitle}>Acesso ao Corretor</Text>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Icon Section */}
+        <View style={styles.iconWrapper}>
+          <View style={styles.iconCircle}>
+            <Home size={48} color="#2e7d32" />
+            <View style={styles.searchBadge}>
+              <Search size={16} color="#2e7d32" />
+            </View>
+          </View>
         </View>
 
-        <View style={styles.card}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>E-mail</Text>
-            <TextInput 
-              style={styles.input} 
-              placeholder="E-mail" 
+        {/* Header Section */}
+        <View style={styles.header}>
+          <Text style={styles.title}>ProspectHome</Text>
+          <Text style={styles.subtitle}>Prospecte imóveis com agilidade</Text>
+        </View>
+
+        {/* Form Section */}
+        <View style={styles.form}>
+          {/* Email Field */}
+          <View style={styles.inputContainer}>
+            <Mail size={22} color="#94a3b8" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="E-mail"
+              placeholderTextColor="#94a3b8"
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -56,21 +84,35 @@ export default function LoginScreen() {
             />
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Senha</Text>
-            <TextInput 
-              style={styles.input} 
-              placeholder="Senha" 
-              secureTextEntry
+          {/* Password Field */}
+          <View style={styles.inputContainer}>
+            <Lock size={22} color="#94a3b8" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Senha"
+              placeholderTextColor="#94a3b8"
+              secureTextEntry={!showPassword}
               value={senha}
               onChangeText={setSenha}
             />
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeBtn}
+            >
+              {showPassword ? (
+                <EyeOff size={22} color="#94a3b8" />
+              ) : (
+                <Eye size={22} color="#94a3b8" />
+              )}
+            </TouchableOpacity>
           </View>
 
-          <TouchableOpacity 
-            style={styles.btn} 
+          {/* Login Button */}
+          <TouchableOpacity
+            style={styles.btn}
             onPress={handleLogin}
             disabled={loading}
+            activeOpacity={0.85}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
@@ -79,6 +121,17 @@ export default function LoginScreen() {
             )}
           </TouchableOpacity>
         </View>
+
+        {/* Footer Section */}
+        <TouchableOpacity
+          style={styles.footer}
+          onPress={() => router.push('/(auth)/register')}
+        >
+          <Text style={styles.footerText}>
+            Não tem conta?{' '}
+            <Text style={styles.footerBold}>Criar conta</Text>
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -92,64 +145,85 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 24,
   },
   center: {
-    flex: 1, 
+    flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  iconWrapper: {
+    marginBottom: 8,
+  },
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(46, 125, 50, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  searchBadge: {
+    position: 'absolute',
+    right: -2,
+    bottom: -2,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 2,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 48,
+    marginTop: 16,
+    marginBottom: 24,
   },
   title: {
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#0a2a43',
-    letterSpacing: -1,
+    color: '#0f172a',
+    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#6c7a89',
-    marginTop: 4,
+    color: '#64748b',
+    marginTop: 8,
   },
-  card: {
-    backgroundColor: '#f8f9fa',
-    padding: 24,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
+  form: {
+    width: '100%',
+    maxWidth: 480,
+    gap: 16,
+    marginTop: 8,
   },
-  inputGroup: {
-    marginBottom: 20,
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
+    borderRadius: 12,
+    backgroundColor: 'transparent',
+    height: 64,
+    paddingHorizontal: 16,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: 6,
-    marginLeft: 4,
+  inputIcon: {
+    marginRight: 12,
   },
   input: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    padding: 14,
-    borderRadius: 10,
-    fontSize: 16,
-    color: '#111827',
+    flex: 1,
+    fontSize: 18,
+    color: '#0f172a',
+    padding: 0,
+  },
+  eyeBtn: {
+    padding: 4,
   },
   btn: {
-    backgroundColor: '#0a2a43',
-    padding: 16,
-    borderRadius: 10,
+    backgroundColor: '#2e7d32',
+    paddingVertical: 18,
+    borderRadius: 12,
     alignItems: 'center',
-    marginTop: 10,
-    shadowColor: '#0a2a43',
+    marginTop: 8,
+    shadowColor: '#2e7d32',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -158,6 +232,17 @@ const styles = StyleSheet.create({
   btnText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 17,
-  }
+    fontSize: 16,
+    letterSpacing: 2,
+  },
+  footer: {
+    marginTop: 24,
+  },
+  footerText: {
+    fontSize: 16,
+    color: '#2e7d32',
+  },
+  footerBold: {
+    fontWeight: 'bold',
+  },
 });

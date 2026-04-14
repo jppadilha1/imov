@@ -1,10 +1,10 @@
 import { FileSystemPhotoStorage } from "../../../../src/infrastructure/storage/FileSystemPhotoStorage";
 import { PhotoPath } from "../../../../src/domain/value-objects/PhotoPath";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 
 // Mocking expo-file-system behavior
-jest.mock("expo-file-system", () => ({
-  documentDirectory: "file:///mock/data/",
+jest.mock("expo-file-system/legacy", () => ({
+  documentDirectory: "file:/mock/data/",
   copyAsync: jest.fn(),
   deleteAsync: jest.fn(),
   getInfoAsync: jest.fn()
@@ -24,8 +24,8 @@ describe("FileSystemPhotoStorage", () => {
     const path = new PhotoPath("mock_img.jpg");
     const uri = await storage.getPhotoUri(path);
 
-    expect(uri).toBe("file:///mock/data/mock_img.jpg");
-    expect(FileSystem.getInfoAsync).toHaveBeenCalledWith("file:///mock/data/mock_img.jpg");
+    expect(uri).toBe("file:/mock/data/mock_img.jpg");
+    expect(FileSystem.getInfoAsync).toHaveBeenCalledWith("file:/mock/data/mock_img.jpg");
   });
 
   it("deve retornar null se o arquivo da foto não existir", async () => {
@@ -38,14 +38,14 @@ describe("FileSystemPhotoStorage", () => {
   });
 
   it("deve salvar a foto e retornar o PhotoPath comente do nome do arquivo", async () => {
-    const localCacheUri = "file:///cache/123-temp.jpg";
-    
+    const localCacheUri = "file:/cache/123-temp.jpg";
+
     const photoPath = await storage.savePhoto(localCacheUri);
-    
+
     expect(photoPath.path).toContain(".jpg");
     expect(FileSystem.copyAsync).toHaveBeenCalledWith({
       from: localCacheUri,
-      to: expect.stringContaining("file:///mock/data/")
+      to: expect.stringContaining("file:/mock/data/")
     });
   });
 
@@ -54,7 +54,7 @@ describe("FileSystemPhotoStorage", () => {
     await storage.deletePhoto(path);
 
     expect(FileSystem.deleteAsync).toHaveBeenCalledWith(
-      "file:///mock/data/mock_img.jpg",
+      "file:/mock/data/mock_img.jpg",
       { idempotent: true }
     );
   });

@@ -1,0 +1,10 @@
+appId: com.imov.prospecthome
+---
+- launchApp
+- assertVisible: "ProspectHome"
+- tapOn: "E-mail"
+- inputText: "teste@teste.com"
+- tapOn: "Senha"
+- inputText: "123456"
+- tapOn: "ENTRAR"
+- assertVisible: "Mapa"

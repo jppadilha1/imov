@@ -25,12 +25,12 @@ describe("ExpoPhotoService", () => {
       (ImagePicker.requestCameraPermissionsAsync as jest.Mock).mockResolvedValue({ status: "granted" });
       (ImagePicker.launchCameraAsync as jest.Mock).mockResolvedValue({
         canceled: false,
-        assets: [{ uri: "file:///camera/123.jpg" }]
+        assets: [{ uri: "file:/camera/123.jpg" }]
       });
 
       const uri = await service.capturePhoto();
 
-      expect(uri).toBe("file:///camera/123.jpg");
+      expect(uri).toBe("file:/camera/123.jpg");
       expect(ImagePicker.launchCameraAsync).toHaveBeenCalled();
     });
 
@@ -54,14 +54,14 @@ describe("ExpoPhotoService", () => {
   describe("compressPhoto", () => {
     it("deve comprimir e retornar a uri da nova foto", async () => {
       (ImageManipulator.manipulateAsync as jest.Mock).mockResolvedValue({
-        uri: "file:///tmp/compressed.jpg"
+        uri: "file:/tmp/compressed.jpg"
       });
 
-      const uri = await service.compressPhoto("file:///camera/123.jpg");
+      const uri = await service.compressPhoto("file:/camera/123.jpg");
 
-      expect(uri).toBe("file:///tmp/compressed.jpg");
+      expect(uri).toBe("file:/tmp/compressed.jpg");
       expect(ImageManipulator.manipulateAsync).toHaveBeenCalledWith(
-        "file:///camera/123.jpg",
+        "file:/camera/123.jpg",
         [{ resize: { width: 800 } }],
         { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
       );

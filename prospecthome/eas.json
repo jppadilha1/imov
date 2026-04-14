@@ -1,0 +1,30 @@
+{
+  "cli": {
+    "version": ">= 3.8.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_MOCK_API": "true"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_MOCK_API": "false",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://sua-url-homologacao.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sua-anon-key-homologacao"
+      }
+    },
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_MOCK_API": "false"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

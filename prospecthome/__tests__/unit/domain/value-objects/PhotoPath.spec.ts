@@ -2,8 +2,8 @@ import { PhotoPath } from "../../../../src/domain/value-objects/PhotoPath";
 
 describe("PhotoPath Value Object", () => {
   it("deve criar um PhotoPath a partir de um path valido", () => {
-    const photo = new PhotoPath("file:///data/user/0/com.app/cache/photo.jpg");
-    expect(photo.path).toBe("file:///data/user/0/com.app/cache/photo.jpg");
+    const photo = new PhotoPath("file:/data/user/0/com.app/cache/photo.jpg");
+    expect(photo.path).toBe("file:/data/user/0/com.app/cache/photo.jpg");
   });
 
   it("deve rejeitar path vazio", () => {
