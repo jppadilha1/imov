@@ -8,32 +8,36 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MapView, { Marker, Callout } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { useProspectos } from '../../hooks/useProspectos';
+import { useLocation } from '../../hooks/useLocation';
 import { router } from 'expo-router';
-import { RefreshCw, Search, Plus, Minus, Navigation } from 'lucide-react-native';
+import { RefreshCw, Search, Plus, Minus, Navigation, Home } from 'lucide-react-native';
 import { Prospecto } from '../../src/domain/entities/Prospecto';
 import { ProspectPreviewCard } from '../../components/ProspectPreviewCard';
+import { SearchBar } from '../../components/SearchBar';
 
 export default function MapScreen() {
-  const { prospectos, loading } = useProspectos();
+  const { prospectos, loading: loadingProspects, fetch } = useProspectos();
+  const { getCurrentPosition, geocodeAddress, loading: loadingLocation } = useLocation();
   const [selectedProspect, setSelectedProspect] = React.useState<Prospecto | null>(null);
+  const [isSearchVisible, setIsSearchVisible] = React.useState(false);
   const mapRef = React.useRef<MapView>(null);
 
   const initialRegion = {
     latitude:
       prospectos.length > 0
         ? prospectos[0].coordinates.latitude
-        : -23.5505,
+        : -21.5544,
     longitude:
       prospectos.length > 0
         ? prospectos[0].coordinates.longitude
-        : -46.6333,
+        : -45.4384,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   };
 
-  if (loading && prospectos.length === 0) {
+  if (loadingProspects && prospectos.length === 0) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#2e7d32" />
@@ -49,18 +53,75 @@ export default function MapScreen() {
     setSelectedProspect(null);
   };
 
+  const handleLocationPress = async () => {
+    const coords = await getCurrentPosition();
+    if (coords && mapRef.current) {
+      mapRef.current.animateToRegion({
+        ...coords,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      }, 1000);
+    }
+  };
+
+  const handleSearch = async (query: string) => {
+    const coords = await geocodeAddress(query);
+    if (coords && mapRef.current) {
+      mapRef.current.animateToRegion({
+        ...coords,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      }, 1000);
+      setIsSearchVisible(false);
+    }
+  };
+
+  const handleZoom = async (type: 'in' | 'out') => {
+    if (!mapRef.current) return;
+
+    try {
+      const camera = await mapRef.current.getCamera();
+      if (camera.zoom !== undefined) {
+        // Platform: Google Maps (Android / iOS with Google providers)
+        camera.zoom += type === 'in' ? 1 : -1;
+        mapRef.current.animateCamera(camera, { duration: 500 });
+      } else {
+        // Platform: Apple Maps (iOS without Google Maps) uses altitude
+        camera.altitude = (camera.altitude || 1000) * (type === 'in' ? 0.5 : 2);
+        mapRef.current.animateCamera(camera, { duration: 500 });
+      }
+    } catch (e) {
+      console.warn("Could not handle zoom", e);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Top App Bar */}
       <View style={styles.appBar}>
         <Text style={styles.appBarTitle}>ProspectHome</Text>
-        <TouchableOpacity style={styles.appBarBtn}>
+        <TouchableOpacity 
+          style={styles.appBarBtn} 
+          onPress={() => {
+            fetch();
+            if (mapRef.current) {
+              mapRef.current.animateToRegion(initialRegion, 1000);
+            }
+          }}
+        >
           <RefreshCw size={24} color="#2e7d32" />
         </TouchableOpacity>
       </View>
 
       {/* Map */}
       <View style={styles.mapContainer}>
+        {isSearchVisible && (
+          <SearchBar
+            onSearch={handleSearch}
+            onClose={() => setIsSearchVisible(false)}
+            loading={loadingLocation}
+          />
+        )}
         <MapView
           ref={mapRef}
           style={styles.map}
@@ -78,14 +139,18 @@ export default function MapScreen() {
                 e.stopPropagation();
                 handleMarkerPress(p);
               }}
-              pinColor="#2e7d32"
-            />
+              tracksViewChanges={false} // Improves performance for custom markers
+            >
+              <View style={styles.customMarker}>
+                <Home size={16} color="#ffffff" />
+              </View>
+            </Marker>
           ))}
         </MapView>
 
         {/* Selected Prospect Preview Card */}
         {selectedProspect && (
-          <ProspectPreviewCard 
+          <ProspectPreviewCard
             prospecto={selectedProspect}
             onClose={() => setSelectedProspect(null)}
             onDetails={(id) => router.push(`/(tabs)/list/${id}`)}
@@ -94,22 +159,33 @@ export default function MapScreen() {
 
         {/* Floating Controls */}
         <View style={styles.controls}>
-          <TouchableOpacity style={styles.controlBtn}>
+          <TouchableOpacity
+            style={styles.controlBtn}
+            onPress={() => setIsSearchVisible(true)}
+          >
             <Search size={20} color="#334155" />
           </TouchableOpacity>
 
           <View style={styles.zoomGroup}>
-            <TouchableOpacity style={styles.zoomBtn}>
+            <TouchableOpacity style={styles.zoomBtn} onPress={() => handleZoom('in')}>
               <Plus size={20} color="#334155" />
             </TouchableOpacity>
             <View style={styles.zoomDivider} />
-            <TouchableOpacity style={styles.zoomBtn}>
+            <TouchableOpacity style={styles.zoomBtn} onPress={() => handleZoom('out')}>
               <Minus size={20} color="#334155" />
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.controlBtn}>
-            <Navigation size={20} color="#2e7d32" />
+          <TouchableOpacity
+            style={[styles.controlBtn, loadingLocation && styles.controlBtnDisabled]}
+            onPress={handleLocationPress}
+            disabled={loadingLocation}
+          >
+            {loadingLocation ? (
+              <ActivityIndicator size="small" color="#2e7d32" />
+            ) : (
+              <Navigation size={20} color="#2e7d32" />
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -173,6 +249,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
+  },
+  controlBtnDisabled: {
+    opacity: 0.6,
   },
   zoomGroup: {
     backgroundColor: '#fff',
@@ -262,5 +341,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: '#2e7d32',
+  },
+  customMarker: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#16A34A',
+    borderWidth: 2,
+    borderColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });

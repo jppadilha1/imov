@@ -67,12 +67,6 @@ export default function CaptureScreen() {
 
         {error && <Text style={styles.errorText}>{error}</Text>}
       </View>
-
-      {/* GPS Status Bar */}
-      <View style={styles.gpsBar}>
-        <MapPin size={16} color="#2e7d32" />
-        <Text style={styles.gpsText}>Aguardando GPS...</Text>
-      </View>
     </SafeAreaView>
   );
 }

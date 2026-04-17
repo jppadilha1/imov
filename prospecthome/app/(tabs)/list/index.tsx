@@ -11,13 +11,28 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useProspectos } from '../../../hooks/useProspectos';
 import { ProspectoCard } from '../../../components/ProspectoCard';
+import { SearchBar } from '../../../components/SearchBar';
 import { router } from 'expo-router';
 import { Search, RefreshCw } from 'lucide-react-native';
 
 export default function ListScreen() {
   const { prospectos, loading, syncing, fetch } = useProspectos();
+  const [isSearchVisible, setIsSearchVisible] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   const pendingCount = prospectos.filter(p => p.syncStatus.isPending()).length;
+
+  const filteredProspectos = React.useMemo(() => {
+    if (!searchQuery.trim()) return prospectos;
+    
+    const query = searchQuery.toLowerCase();
+    return prospectos.filter(p => {
+      const inAddress = p.address?.fullAddress.toLowerCase().includes(query) || false;
+      const inNotes = p.notes?.toLowerCase().includes(query) || false;
+      const inStatus = p.status.value.toLowerCase().includes(query) || false;
+      return inAddress || inNotes || inStatus;
+    });
+  }, [prospectos, searchQuery]);
 
   const renderItem = ({ item }: any) => (
     <ProspectoCard
@@ -36,18 +51,29 @@ export default function ListScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {isSearchVisible && (
+        <SearchBar 
+          onChangeText={setSearchQuery} 
+          onClose={() => {
+            setIsSearchVisible(false);
+            setSearchQuery('');
+          }}
+          placeholder="Buscar por nome, endereço, etc..."
+        />
+      )}
+      
       {/* Top App Bar */}
       <View style={styles.appBar}>
         <View style={styles.appBarLeft} />
         <View style={styles.appBarRight}>
-          <TouchableOpacity style={styles.appBarBtn}>
+          <TouchableOpacity style={styles.appBarBtn} onPress={() => setIsSearchVisible(true)}>
             <Search size={24} color="#334155" />
           </TouchableOpacity>
         </View>
       </View>
 
       <FlatList
-        data={prospectos}
+        data={filteredProspectos}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={styles.list}

@@ -16,8 +16,8 @@ import { Home, Search, Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 
 export default function LoginScreen() {
   const { login, user, loading } = useAuth();
-  const [email, setEmail] = useState('sucesso@teste.com');
-  const [senha, setSenha] = useState('123456');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
