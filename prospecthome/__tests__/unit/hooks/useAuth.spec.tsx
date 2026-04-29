@@ -1,11 +1,11 @@
 import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { AuthProvider } from "../../../contexts/AuthContext";
 import { useAuth } from "../../../hooks/useAuth";
-import { container } from "../../../src/di/container";
+import { container } from "../../../src/dependency_injection/container";
 import { Corretor } from "../../../src/domain/entities/Corretor";
 
 // Mock container dependencias
-jest.mock('../../../src/di/container', () => ({
+jest.mock('../../../src/dependency_injection/container', () => ({
   __esModule: true,
   container: {
     authGateway: {
@@ -27,9 +27,9 @@ describe('useAuth Hook', () => {
 
   it('deve carregar a sessao inicial ao montar', async () => {
     const fakeCorretor = Corretor.create({ id: '1', email: 't@t.com' });
-    (container.sessionRepository.getSession as jest.Mock).mockResolvedValue({ 
-      corretor: fakeCorretor, 
-      token: 'tok' 
+    (container.sessionRepository.getSession as jest.Mock).mockResolvedValue({
+      corretor: fakeCorretor,
+      token: 'tok'
     });
 
     const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
@@ -44,9 +44,9 @@ describe('useAuth Hook', () => {
   it('deve fazer login com sucesso', async () => {
     const fakeCorretor = Corretor.create({ id: '1', email: 't@t.com' });
     (container.sessionRepository.getSession as jest.Mock).mockResolvedValue(null);
-    (container.authGateway.login as jest.Mock).mockResolvedValue({ 
-      corretor: fakeCorretor, 
-      token: 'tok' 
+    (container.authGateway.login as jest.Mock).mockResolvedValue({
+      corretor: fakeCorretor,
+      token: 'tok'
     });
 
     const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
@@ -62,9 +62,9 @@ describe('useAuth Hook', () => {
 
   it('deve fazer logout e limpar a sessao', async () => {
     const fakeCorretor = Corretor.create({ id: '1', email: 't@t.com' });
-    (container.sessionRepository.getSession as jest.Mock).mockResolvedValue({ 
-      corretor: fakeCorretor, 
-      token: 'tok' 
+    (container.sessionRepository.getSession as jest.Mock).mockResolvedValue({
+      corretor: fakeCorretor,
+      token: 'tok'
     });
 
     const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });

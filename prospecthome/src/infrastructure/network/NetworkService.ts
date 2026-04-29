@@ -1,5 +1,4 @@
 import { INetworkService } from "../../domain/repositories/INetworkService";
-
 import * as NetInfo from "@react-native-community/netinfo";
 
 export class NetworkService implements INetworkService {
@@ -10,5 +9,11 @@ export class NetworkService implements INetworkService {
     } catch (e) {
       return false;
     }
+  }
+
+  addListener(callback: (isConnected: boolean) => void): () => void {
+    return NetInfo.addEventListener((state) => {
+      callback(!!state.isConnected);
+    });
   }
 }

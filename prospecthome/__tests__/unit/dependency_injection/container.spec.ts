@@ -1,4 +1,4 @@
-import { container } from "../../../src/di/container";
+import { container } from "../../../src/dependency_injection/container";
 import { MockProspectoRepository } from "../../../src/infrastructure/mock/MockProspectoRepository";
 
 describe("DI Container", () => {
@@ -8,8 +8,8 @@ describe("DI Container", () => {
   });
 
   it("deve retornar exatamente a mesma instancia para module loaders (singleton)", () => {
-    const c1 = require("../../../src/di/container").container;
-    const c2 = require("../../../src/di/container").container;
+    const c1 = require("../../../src/dependency_injection/container").container;
+    const c2 = require("../../../src/dependency_injection/container").container;
     expect(c1).toBe(c2);
   });
 });

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { container } from '../src/di/container';
+import { container } from '../src/dependency_injection/container';
 import { useAuth } from './useAuth';
 import { usePermissions } from './usePermissions';
 import { CaptureProspectoUseCase } from '../src/application/use-cases/CaptureProspectoUseCase';

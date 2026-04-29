@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { container } from '../src/di/container';
+import { container } from '../src/dependency_injection/container';
 import { Corretor } from '../src/domain/entities/Corretor';
 import { LoginUseCase } from '../src/application/use-cases/LoginUseCase';
 import { RegisterUseCase } from '../src/application/use-cases/RegisterUseCase';

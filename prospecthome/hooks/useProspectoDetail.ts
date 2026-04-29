@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { container } from '../src/di/container';
+import { container } from '../src/dependency_injection/container';
 import { Prospecto } from '../src/domain/entities/Prospecto';
 import { ProspectoStatus } from '../src/domain/value-objects/ProspectoStatus';
 

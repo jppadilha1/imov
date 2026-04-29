@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { container } from '../src/di/container';
+import { container } from '../src/dependency_injection/container';
 import { Prospecto } from '../src/domain/entities/Prospecto';
 import { ListProspectosUseCase } from '../src/application/use-cases/ListProspectosUseCase';
 import { CaptureProspectoUseCase } from '../src/application/use-cases/CaptureProspectoUseCase';
@@ -15,9 +15,9 @@ export function useProspectos() {
 
   const listUC = new ListProspectosUseCase(container.prospectoRepository);
   const captureUC = new CaptureProspectoUseCase(
-    container.photoService, 
-    container.locationService, 
-    container.photoStorage, 
+    container.photoService,
+    container.locationService,
+    container.photoStorage,
     container.prospectoRepository
   );
   const syncUC = new SyncProspectosUseCase(container.syncGateway, container.prospectoRepository);

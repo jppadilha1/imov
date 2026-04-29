@@ -11,8 +11,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker } from 'react-native-maps';
 import { useProspectos } from '../../hooks/useProspectos';
 import { useLocation } from '../../hooks/useLocation';
+import { useNetwork } from '../../hooks/useNetwork';
 import { router } from 'expo-router';
-import { RefreshCw, Search, Plus, Minus, Navigation, Home } from 'lucide-react-native';
+import { RefreshCw, Search, Plus, Minus, Navigation, Home, WifiOff } from 'lucide-react-native';
 import { Prospecto } from '../../src/domain/entities/Prospecto';
 import { ProspectPreviewCard } from '../../components/ProspectPreviewCard';
 import { SearchBar } from '../../components/SearchBar';
@@ -20,6 +21,7 @@ import { SearchBar } from '../../components/SearchBar';
 export default function MapScreen() {
   const { prospectos, loading: loadingProspects, fetch } = useProspectos();
   const { getCurrentPosition, geocodeAddress, loading: loadingLocation } = useLocation();
+  const { isConnected } = useNetwork();
   const [selectedProspect, setSelectedProspect] = React.useState<Prospecto | null>(null);
   const [isSearchVisible, setIsSearchVisible] = React.useState(false);
   const mapRef = React.useRef<MapView>(null);
@@ -113,82 +115,90 @@ export default function MapScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Map */}
-      <View style={styles.mapContainer}>
-        {isSearchVisible && (
-          <SearchBar
-            onSearch={handleSearch}
-            onClose={() => setIsSearchVisible(false)}
-            loading={loadingLocation}
-          />
-        )}
-        <MapView
-          ref={mapRef}
-          style={styles.map}
-          initialRegion={initialRegion}
-          onPress={handleMapPress}
-        >
-          {prospectos.map((p) => (
-            <Marker
-              key={p.id}
-              coordinate={{
-                latitude: p.coordinates.latitude,
-                longitude: p.coordinates.longitude,
-              }}
-              onPress={(e) => {
-                e.stopPropagation();
-                handleMarkerPress(p);
-              }}
-              tracksViewChanges={false} // Improves performance for custom markers
-            >
-              <View style={styles.customMarker}>
-                <Home size={16} color="#ffffff" />
-              </View>
-            </Marker>
-          ))}
-        </MapView>
-
-        {/* Selected Prospect Preview Card */}
-        {selectedProspect && (
-          <ProspectPreviewCard
-            prospecto={selectedProspect}
-            onClose={() => setSelectedProspect(null)}
-            onDetails={(id) => router.push(`/(tabs)/list/${id}`)}
-          />
-        )}
-
-        {/* Floating Controls */}
-        <View style={styles.controls}>
-          <TouchableOpacity
-            style={styles.controlBtn}
-            onPress={() => setIsSearchVisible(true)}
+      {/* Map or Offline Placeholder */}
+      {isConnected === false ? (
+        <View style={styles.offlinePlaceholder}>
+          <WifiOff size={48} color="#94a3b8" />
+          <Text style={styles.offlineTitle}>Você está offline</Text>
+          <Text style={styles.offlineMessage}>
+            Tire suas fotos normalmente — elas serão sincronizadas automaticamente assim que a conexão voltar.
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.mapContainer}>
+          {isSearchVisible && (
+            <SearchBar
+              onSearch={handleSearch}
+              onClose={() => setIsSearchVisible(false)}
+              loading={loadingLocation}
+            />
+          )}
+          <MapView
+            ref={mapRef}
+            style={styles.map}
+            initialRegion={initialRegion}
+            onPress={handleMapPress}
           >
-            <Search size={20} color="#334155" />
-          </TouchableOpacity>
+            {prospectos.map((p) => (
+              <Marker
+                key={p.id}
+                coordinate={{
+                  latitude: p.coordinates.latitude,
+                  longitude: p.coordinates.longitude,
+                }}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  handleMarkerPress(p);
+                }}
+                tracksViewChanges={false}
+              >
+                <View style={styles.customMarker}>
+                  <Home size={16} color="#ffffff" />
+                </View>
+              </Marker>
+            ))}
+          </MapView>
 
-          <View style={styles.zoomGroup}>
-            <TouchableOpacity style={styles.zoomBtn} onPress={() => handleZoom('in')}>
-              <Plus size={20} color="#334155" />
+          {selectedProspect && (
+            <ProspectPreviewCard
+              prospecto={selectedProspect}
+              onClose={() => setSelectedProspect(null)}
+              onDetails={(id) => router.push(`/(tabs)/list/${id}`)}
+            />
+          )}
+
+          <View style={styles.controls}>
+            <TouchableOpacity
+              style={styles.controlBtn}
+              onPress={() => setIsSearchVisible(true)}
+            >
+              <Search size={20} color="#334155" />
             </TouchableOpacity>
-            <View style={styles.zoomDivider} />
-            <TouchableOpacity style={styles.zoomBtn} onPress={() => handleZoom('out')}>
-              <Minus size={20} color="#334155" />
+
+            <View style={styles.zoomGroup}>
+              <TouchableOpacity style={styles.zoomBtn} onPress={() => handleZoom('in')}>
+                <Plus size={20} color="#334155" />
+              </TouchableOpacity>
+              <View style={styles.zoomDivider} />
+              <TouchableOpacity style={styles.zoomBtn} onPress={() => handleZoom('out')}>
+                <Minus size={20} color="#334155" />
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.controlBtn, loadingLocation && styles.controlBtnDisabled]}
+              onPress={handleLocationPress}
+              disabled={loadingLocation}
+            >
+              {loadingLocation ? (
+                <ActivityIndicator size="small" color="#2e7d32" />
+              ) : (
+                <Navigation size={20} color="#2e7d32" />
+              )}
             </TouchableOpacity>
           </View>
-
-          <TouchableOpacity
-            style={[styles.controlBtn, loadingLocation && styles.controlBtnDisabled]}
-            onPress={handleLocationPress}
-            disabled={loadingLocation}
-          >
-            {loadingLocation ? (
-              <ActivityIndicator size="small" color="#2e7d32" />
-            ) : (
-              <Navigation size={20} color="#2e7d32" />
-            )}
-          </TouchableOpacity>
         </View>
-      </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -341,6 +351,26 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: '#2e7d32',
+  },
+  offlinePlaceholder: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    paddingHorizontal: 40,
+    gap: 16,
+  },
+  offlineTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#334155',
+    textAlign: 'center',
+  },
+  offlineMessage: {
+    fontSize: 14,
+    color: '#64748b',
+    textAlign: 'center',
+    lineHeight: 22,
   },
   customMarker: {
     width: 32,

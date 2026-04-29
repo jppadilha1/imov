@@ -21,6 +21,8 @@ import { ExpoLocationService } from "../infrastructure/services/ExpoLocationServ
 import { ExpoPhotoService } from "../infrastructure/services/ExpoPhotoService";
 import { NetworkService } from "../infrastructure/network/NetworkService";
 
+const USE_REAL_DB = false;
+
 class DIContainer {
   public prospectoRepository: IProspectoRepository;
   public sessionRepository: ISessionRepository;
@@ -32,20 +34,21 @@ class DIContainer {
   public networkService: INetworkService;
 
   constructor() {
-    // Forçar mock para esta fase do desenvolvimento conforme solicitado
-    const useMock = true; 
+    this.prospectoRepository = USE_REAL_DB
+      ? new SQLiteProspectoRepository()
+      : new MockProspectoRepository();
+    this.locationService = USE_REAL_DB
+      ? new ExpoLocationService()
+      : new MockLocationService();
 
-    // Repositories
-    this.prospectoRepository = useMock ? new MockProspectoRepository() : new SQLiteProspectoRepository();
     this.sessionRepository = new SQLiteSessionRepository();
     this.photoStorage = new FileSystemPhotoStorage();
     this.photoService = new ExpoPhotoService();
     this.networkService = new NetworkService();
 
-    // Gateway / Services
+    // Cloud integrations remain mocked until explicitly enabled
     this.authGateway = new MockAuthGateway();
     this.syncGateway = new MockSyncGateway();
-    this.locationService = useMock ? new MockLocationService() : new ExpoLocationService();
   }
 }
 

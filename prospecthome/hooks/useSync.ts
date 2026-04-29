@@ -1,15 +1,13 @@
 import { useEffect } from 'react';
 import { SyncProspectosUseCase } from '../src/application/use-cases/SyncProspectosUseCase';
-import { container } from '../src/di/container';
+import { container } from '../src/dependency_injection/container';
 
 export function useSync() {
-  const syncUC = new SyncProspectosUseCase(container.syncGateway, container.prospectoRepository);
-
   useEffect(() => {
-    // Escuta mudanças de rede
+    const syncUC = new SyncProspectosUseCase(container.syncGateway, container.prospectoRepository);
+
     const unsubscribe = container.networkService.addListener(async (isConnected) => {
       if (isConnected) {
-        console.log("Internet detectada! Sincronizando todos...");
         try {
           await syncUC.execute();
         } catch (e) {
@@ -18,10 +16,15 @@ export function useSync() {
       }
     });
 
-    // Inicia sync na montagem se já estiver com internet
     (async () => {
       const isConnected = await container.networkService.isConnected();
-      if (isConnected) await syncUC.execute();
+      if (isConnected) {
+        try {
+          await syncUC.execute();
+        } catch (e) {
+          console.error("Erro no sync inicial:", e);
+        }
+      }
     })();
 
     return () => unsubscribe();
