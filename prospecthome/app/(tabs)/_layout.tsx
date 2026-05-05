@@ -1,8 +1,11 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { MapPin, Camera, List } from 'lucide-react-native';
+import { useSync } from '../../hooks/useSync';
 
 export default function TabsLayout() {
+  useSync();
+
   return (
     <Tabs
       screenOptions={{

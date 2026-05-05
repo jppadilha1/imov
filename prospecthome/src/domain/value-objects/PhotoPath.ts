@@ -6,8 +6,8 @@ export class PhotoPath {
       throw new Error("O caminho da foto não pode ser vazio.");
     }
     
-    const lowerPath = path.toLowerCase();
-    if (!lowerPath.endsWith(".jpg") && !lowerPath.endsWith(".jpeg") && !lowerPath.endsWith(".png")) {
+    const pathWithoutQuery = path.toLowerCase().split("?")[0];
+    if (!pathWithoutQuery.endsWith(".jpg") && !pathWithoutQuery.endsWith(".jpeg") && !pathWithoutQuery.endsWith(".png")) {
       throw new Error(`A foto deve ser um arquivo JPEG ou PNG válido. Recebido: ${path}`);
     }
 

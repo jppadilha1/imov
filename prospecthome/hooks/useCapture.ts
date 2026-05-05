@@ -3,6 +3,7 @@ import { container } from '../src/dependency_injection/container';
 import { useAuth } from './useAuth';
 import { usePermissions } from './usePermissions';
 import { CaptureProspectoUseCase } from '../src/application/use-cases/CaptureProspectoUseCase';
+import { SyncProspectosUseCase } from '../src/application/use-cases/SyncProspectosUseCase';
 
 export function useCapture() {
   const [loading, setLoading] = useState(false);
@@ -39,6 +40,11 @@ export function useCapture() {
       }
 
       const prospecto = await getUseCase().execute(user.id);
+
+      new SyncProspectosUseCase(container.syncGateway, container.prospectoRepository)
+        .execute()
+        .catch(e => console.error("Sync pós-captura falhou:", e));
+
       return prospecto;
     } catch (e: any) {
       setError(e.message || 'Falha na captura');

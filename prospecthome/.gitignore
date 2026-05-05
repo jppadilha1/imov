@@ -4,3 +4,22 @@
 
 expo-env.d.ts
 # @end expo-cli
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.expo/
+web-build/
+
+# Coverage
+coverage/
+
+# Supabase
+supabase/.temp/

@@ -121,7 +121,7 @@ export default function MapScreen() {
           <WifiOff size={48} color="#94a3b8" />
           <Text style={styles.offlineTitle}>Você está offline</Text>
           <Text style={styles.offlineMessage}>
-            Tire suas fotos normalmente — elas serão sincronizadas automaticamente assim que a conexão voltar.
+            Tire suas fotos normalmente, elas serão sincronizadas automaticamente assim que a conexão voltar.
           </Text>
         </View>
       ) : (
