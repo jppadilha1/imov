@@ -10,6 +10,7 @@ jest.mock('../../../src/dependency_injection/container', () => ({
   container: {
     syncGateway: {},
     prospectoRepository: {},
+    geocodeService: {},
     networkService: {
       isConnected: () => mockIsConnected(),
       addListener: (cb: (isConnected: boolean) => void) => {

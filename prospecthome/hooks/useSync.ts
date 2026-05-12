@@ -4,7 +4,7 @@ import { container } from '../src/dependency_injection/container';
 
 export function useSync() {
   useEffect(() => {
-    const syncUC = new SyncProspectosUseCase(container.syncGateway, container.prospectoRepository);
+    const syncUC = new SyncProspectosUseCase(container.syncGateway, container.prospectoRepository, container.geocodeService);
 
     const unsubscribe = container.networkService.addListener(async (isConnected) => {
       if (isConnected) {

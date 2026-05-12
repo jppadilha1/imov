@@ -41,7 +41,7 @@ export function useCapture() {
 
       const prospecto = await getUseCase().execute(user.id);
 
-      new SyncProspectosUseCase(container.syncGateway, container.prospectoRepository)
+      new SyncProspectosUseCase(container.syncGateway, container.prospectoRepository, container.geocodeService)
         .execute()
         .catch(e => console.error("Sync pós-captura falhou:", e));
 

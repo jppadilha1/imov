@@ -20,7 +20,7 @@ export function useProspectos() {
     container.photoStorage,
     container.prospectoRepository
   );
-  const syncUC = new SyncProspectosUseCase(container.syncGateway, container.prospectoRepository);
+  const syncUC = new SyncProspectosUseCase(container.syncGateway, container.prospectoRepository, container.geocodeService);
   const deleteUC = new DeleteProspectoUseCase(container.prospectoRepository);
 
   const fetch = useCallback(async () => {
