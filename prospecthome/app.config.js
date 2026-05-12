@@ -1,11 +1,13 @@
 module.exports = {
+  
   expo: {
-    name: "Prospect Home",
-    slug: "Prospect Home",
+    owner: "jppadilha",
+    name: "prospect-home",
+    slug: "prospect-home",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/prospect-home-logo.png",
-    scheme: "Prospect Home",
+    scheme: "prospecthome",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     ios: {
@@ -15,7 +17,7 @@ module.exports = {
       adaptiveIcon: {
         backgroundColor: "#2e7d32",
         foregroundImage: "./assets/images/android-icon-foreground.png",
-        backgroundImage: "./assets/images/android-icon-background.png",
+        backgroundImage: "./assets/images/prospect-home-logo.png",
         monochromeImage: "./assets/images/android-icon-monochrome.png",
       },
       edgeToEdgeEnabled: true,
@@ -63,6 +65,11 @@ module.exports = {
       supabaseUrl: process.env.SUPABASE_URL ?? "",
       supabaseAnonKey: process.env.SUPABASE_ANON_KEY ?? "",
       appEnv: process.env.APP_ENV ?? "development",
+      "eas": {
+        "projectId": "4edbbd33-e744-4bfb-ab0e-2351c821cb84",
+      }
+      
     },
+    
   },
 };

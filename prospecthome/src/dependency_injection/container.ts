@@ -20,6 +20,7 @@ import { MockGeocodeService } from "../infrastructure/mock/MockGeocodeService";
 // Reais (não-supabase)
 import { SQLiteProspectoRepository } from "../infrastructure/database/SQLiteProspectoRepository";
 import { SQLiteSessionRepository } from "../infrastructure/database/SQLiteSessionRepository";
+import { HybridProspectoRepository } from "../infrastructure/database/HybridProspectoRepository";
 import { FileSystemPhotoStorage } from "../infrastructure/storage/FileSystemPhotoStorage";
 import { ExpoLocationService } from "../infrastructure/device-services/ExpoLocationService";
 import { ExpoGeocodeService } from "../infrastructure/device-services/ExpoGeocodeService";
@@ -54,9 +55,6 @@ class DIContainer {
     this.photoService = new ExpoPhotoService();
     this.networkService = new NetworkService();
 
-    this.prospectoRepository = isProduction
-      ? new SQLiteProspectoRepository()
-      : new MockProspectoRepository();
     this.locationService = isProduction
       ? new ExpoLocationService()
       : new MockLocationService();
@@ -70,12 +68,22 @@ class DIContainer {
       const { getSupabaseClient } = require("../infrastructure/database/supabase/SupabaseClient");
       const { SupabaseAuthGateway } = require("../infrastructure/database/supabase/SupabaseAuthGateway");
       const { SupabaseSyncGateway } = require("../infrastructure/database/supabase/SupabaseSyncGateway");
+      const { SupabaseProspectoRepository } = require("../infrastructure/database/supabase/SupabaseProspectoRepository");
       const supabase = getSupabaseClient();
       this.authGateway = new SupabaseAuthGateway(supabase);
       this.syncGateway = new SupabaseSyncGateway(supabase, this.photoStorage);
+
+      const localRepo = new SQLiteProspectoRepository();
+      const remoteRepo = new SupabaseProspectoRepository(supabase, this.photoStorage);
+      this.prospectoRepository = new HybridProspectoRepository(
+        localRepo,
+        remoteRepo,
+        this.networkService
+      );
     } else {
       this.authGateway = new MockAuthGateway();
       this.syncGateway = new MockSyncGateway();
+      this.prospectoRepository = new MockProspectoRepository();
     }
   }
 }

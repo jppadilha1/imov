@@ -13,3 +13,40 @@ describe("DI Container", () => {
     expect(c1).toBe(c2);
   });
 });
+
+describe("DI Container — modo produção", () => {
+  beforeEach(() => {
+    jest.resetModules();
+    jest.doMock("expo-constants", () => ({
+      __esModule: true,
+      default: { expoConfig: { extra: { appEnv: "production" } } },
+    }));
+    jest.doMock("../../../src/infrastructure/database/supabase/SupabaseClient", () => ({
+      getSupabaseClient: () => ({
+        auth: { getUser: jest.fn() },
+        from: jest.fn(),
+        storage: { from: jest.fn() },
+      }),
+    }));
+    jest.doMock("../../../src/infrastructure/database/supabase/SupabaseAuthGateway", () => ({
+      SupabaseAuthGateway: class {},
+    }));
+    jest.doMock("../../../src/infrastructure/database/supabase/SupabaseSyncGateway", () => ({
+      SupabaseSyncGateway: class {},
+    }));
+    jest.doMock("../../../src/infrastructure/database/supabase/SupabaseProspectoRepository", () => ({
+      SupabaseProspectoRepository: class {},
+    }));
+  });
+
+  afterEach(() => {
+    jest.dontMock("expo-constants");
+    jest.resetModules();
+  });
+
+  it("em produção, prospectoRepository é HybridProspectoRepository", () => {
+    const { container: prodContainer } = require("../../../src/dependency_injection/container");
+    const { HybridProspectoRepository } = require("../../../src/infrastructure/database/HybridProspectoRepository");
+    expect(prodContainer.prospectoRepository).toBeInstanceOf(HybridProspectoRepository);
+  });
+});
