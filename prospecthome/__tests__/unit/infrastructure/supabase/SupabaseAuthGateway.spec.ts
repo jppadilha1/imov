@@ -1,4 +1,4 @@
-import { SupabaseAuthGateway } from "../../../../src/infrastructure/supabase/SupabaseAuthGateway";
+import { SupabaseAuthGateway } from "../../../../src/infrastructure/database/supabase/SupabaseAuthGateway";
 import { Corretor } from "../../../../src/domain/entities/Corretor";
 
 type MockedSupabase = {

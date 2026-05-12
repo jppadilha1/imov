@@ -1,4 +1,4 @@
-import { NetworkService } from "../../../../src/infrastructure/network/NetworkService";
+import { NetworkService } from "../../../../src/infrastructure/device-services/NetworkService";
 import * as NetInfo from "@react-native-community/netinfo";
 
 jest.mock("@react-native-community/netinfo", () => ({

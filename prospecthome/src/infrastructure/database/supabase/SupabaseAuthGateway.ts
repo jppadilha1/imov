@@ -1,6 +1,6 @@
 import { SupabaseClient, User } from "@supabase/supabase-js";
-import { IAuthGateway } from "../../domain/repositories/IAuthGateway";
-import { Corretor } from "../../domain/entities/Corretor";
+import { IAuthGateway } from "../../../domain/repositories/IAuthGateway";
+import { Corretor } from "../../../domain/entities/Corretor";
 
 export class SupabaseAuthGateway implements IAuthGateway {
   constructor(private readonly supabase: SupabaseClient) {}

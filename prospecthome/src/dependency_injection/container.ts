@@ -19,9 +19,9 @@ import { MockProspectoRepository } from "../infrastructure/mock/MockProspectoRep
 import { SQLiteProspectoRepository } from "../infrastructure/database/SQLiteProspectoRepository";
 import { SQLiteSessionRepository } from "../infrastructure/database/SQLiteSessionRepository";
 import { FileSystemPhotoStorage } from "../infrastructure/storage/FileSystemPhotoStorage";
-import { ExpoLocationService } from "../infrastructure/services/ExpoLocationService";
-import { ExpoPhotoService } from "../infrastructure/services/ExpoPhotoService";
-import { NetworkService } from "../infrastructure/network/NetworkService";
+import { ExpoLocationService } from "../infrastructure/device-services/ExpoLocationService";
+import { ExpoPhotoService } from "../infrastructure/device-services/ExpoPhotoService";
+import { NetworkService } from "../infrastructure/device-services/NetworkService";
 
 const RECOGNIZED_ENVS = new Set(["production", "development", "test", "staging"]);
 

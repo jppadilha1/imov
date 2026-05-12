@@ -1,13 +1,13 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import * as FileSystem from "expo-file-system/legacy";
-import { ISyncGateway } from "../../domain/repositories/ISyncGateway";
-import { IPhotoStorage } from "../../domain/repositories/IPhotoStorage";
-import { Prospecto } from "../../domain/entities/Prospecto";
-import { Coordinates } from "../../domain/value-objects/Coordinates";
-import { PhotoPath } from "../../domain/value-objects/PhotoPath";
-import { Address } from "../../domain/value-objects/Address";
-import { ProspectoStatus } from "../../domain/value-objects/ProspectoStatus";
-import { SyncStatus } from "../../domain/value-objects/SyncStatus";
+import { ISyncGateway } from "../../../domain/repositories/ISyncGateway";
+import { IPhotoStorage } from "../../../domain/repositories/IPhotoStorage";
+import { Prospecto } from "../../../domain/entities/Prospecto";
+import { Coordinates } from "../../../domain/value-objects/Coordinates";
+import { PhotoPath } from "../../../domain/value-objects/PhotoPath";
+import { Address } from "../../../domain/value-objects/Address";
+import { ProspectoStatus } from "../../../domain/value-objects/ProspectoStatus";
+import { SyncStatus } from "../../../domain/value-objects/SyncStatus";
 
 const BUCKET = "prospecto-photos";
 const SIGNED_URL_EXPIRES_IN_SECONDS = 60 * 60 * 24 * 365 * 10; // 10 anos
