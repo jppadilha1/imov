@@ -17,21 +17,44 @@ export function useProspectoDetail(id: string) {
   const updateStatus = async (value: 'novo' | 'contatado' | 'negociando' | 'fechado') => {
     if (!prospecto) return;
     try {
-      // Manual transition to verify VO constraints if needed, or reconstruct
-      // For speed in MVP, we might just reconstruct with new status
       const updated = Prospecto.reconstruct({
-        ...prospecto,
-        status: new ProspectoStatus(value),
+        id: prospecto.id,
+        userId: prospecto.userId,
+        photoPath: prospecto.photoPath,
+        coordinates: prospecto.coordinates,
         address: prospecto.address,
         notes: prospecto.notes,
+        status: new ProspectoStatus(value),
         syncStatus: prospecto.syncStatus,
         remoteId: prospecto.remoteId,
-        createdAt: prospecto.createdAt
+        createdAt: prospecto.createdAt,
       });
       await container.prospectoRepository.save(updated);
       setProspecto(updated);
     } catch (e) {
-      alert(e.message);
+      alert(`Erro ao atualizar status: ${e.message}`);
+    }
+  };
+
+  const updateNotes = async (text: string) => {
+    if (!prospecto) return;
+    try {
+      const updated = Prospecto.reconstruct({
+        id: prospecto.id,
+        userId: prospecto.userId,
+        photoPath: prospecto.photoPath,
+        coordinates: prospecto.coordinates,
+        address: prospecto.address,
+        notes: text,
+        status: prospecto.status,
+        syncStatus: prospecto.syncStatus,
+        remoteId: prospecto.remoteId,
+        createdAt: prospecto.createdAt,
+      });
+      await container.prospectoRepository.save(updated);
+      setProspecto(updated);
+    } catch (e) {
+      alert(`Erro ao atualizar notas: ${e.message}`);
     }
   };
 
@@ -39,5 +62,5 @@ export function useProspectoDetail(id: string) {
     if (id) fetch();
   }, [id]);
 
-  return { prospecto, loading, fetch, updateStatus };
+  return { prospecto, loading, fetch, updateStatus, updateNotes };
 }

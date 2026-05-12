@@ -145,4 +145,42 @@ describe("SyncProspectosUseCase", () => {
     expect(mockSyncGateway.uploadProspecto).toHaveBeenCalledWith(prospecto);
     expect(prospecto.syncStatus.isSynced()).toBe(true);
   });
+
+  it("chama pullUpdates após upload bem-sucedido para sincronizar com Supabase", async () => {
+    const p1 = createPendingProspecto("local-1");
+    const remoteProspecto = Prospecto.reconstruct({
+      id: "remote-1",
+      userId: "user-1",
+      photoPath: new PhotoPath("https://supabase.url/photo.jpg"),
+      coordinates: new Coordinates(0, 0),
+      address: null,
+      notes: "atualizado no Supabase",
+      status: p1.status,
+      syncStatus: p1.syncStatus,
+      remoteId: "remote-1",
+      createdAt: p1.createdAt,
+    });
+
+    mockProspectoRepo.findPending.mockResolvedValue([p1]);
+    mockGeocodeService.reverseGeocode.mockResolvedValue(null);
+    mockSyncGateway.uploadProspecto.mockResolvedValue("remote-local-1");
+    mockSyncGateway.pullUpdates.mockResolvedValue([remoteProspecto]);
+
+    await useCase.execute();
+
+    expect(mockSyncGateway.pullUpdates).toHaveBeenCalledWith("user-1", new Date(0));
+    expect(mockProspectoRepo.save).toHaveBeenCalledWith(remoteProspecto);
+  });
+
+  it("falha silenciosamente no pull se pullUpdates lança exceção", async () => {
+    const p1 = createPendingProspecto("local-1");
+
+    mockProspectoRepo.findPending.mockResolvedValue([p1]);
+    mockGeocodeService.reverseGeocode.mockResolvedValue(null);
+    mockSyncGateway.uploadProspecto.mockResolvedValue("remote-local-1");
+    mockSyncGateway.pullUpdates.mockRejectedValue(new Error("Network error"));
+
+    await expect(useCase.execute()).resolves.not.toThrow();
+    expect(mockSyncGateway.pullUpdates).toHaveBeenCalled();
+  });
 });

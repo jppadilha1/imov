@@ -11,33 +11,48 @@ export class SyncProspectosUseCase {
 
   async execute(): Promise<void> {
     const pendingItems = await this.prospectoRepository.findPending();
+    let userId: string | null = null;
 
-    if (pendingItems.length === 0) return;
+    // Upload pending items
+    if (pendingItems.length > 0) {
+      userId = pendingItems[0].userId;
 
-    // Use Promise.allSettled for individual error boundaries (one failing sync shouldn't crash the whole loop array abruptly)
-    await Promise.allSettled(
-      pendingItems.map(async (prospecto) => {
-        try {
-          if (!prospecto.address) {
-            try {
-              const address = await this.geocodeService.reverseGeocode(prospecto.coordinates);
-              if (address) {
-                prospecto.resolveAddress(address);
-                await this.prospectoRepository.save(prospecto);
+      await Promise.allSettled(
+        pendingItems.map(async (prospecto) => {
+          try {
+            if (!prospecto.address) {
+              try {
+                const address = await this.geocodeService.reverseGeocode(prospecto.coordinates);
+                if (address) {
+                  prospecto.resolveAddress(address);
+                  await this.prospectoRepository.save(prospecto);
+                }
+              } catch {
+                // geocoding failure is non-fatal — proceed with upload without address
               }
-            } catch {
-              // geocoding failure is non-fatal — proceed with upload without address
             }
-          }
 
-          const remoteId = await this.syncGateway.uploadProspecto(prospecto);
-          prospecto.markSynced(remoteId);
-          await this.prospectoRepository.save(prospecto);
-        } catch (e) {
-          prospecto.markSyncError();
+            const remoteId = await this.syncGateway.uploadProspecto(prospecto);
+            prospecto.markSynced(remoteId);
+            await this.prospectoRepository.save(prospecto);
+          } catch (e) {
+            prospecto.markSyncError();
+            await this.prospectoRepository.save(prospecto);
+          }
+        })
+      );
+    }
+
+    // Pull updates from Supabase to ensure SQLite is in sync with remote
+    if (userId) {
+      try {
+        const remoteProspectos = await this.syncGateway.pullUpdates(userId, new Date(0));
+        for (const prospecto of remoteProspectos) {
           await this.prospectoRepository.save(prospecto);
         }
-      })
-    );
+      } catch {
+        // Pull failure is non-fatal — sync is still considered complete
+      }
+    }
   }
 }

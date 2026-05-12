@@ -8,6 +8,13 @@ type Props = {
   onChange: (value: 'novo' | 'contatado' | 'negociando' | 'fechado') => void;
 };
 
+const STATUS_COLORS: Record<string, { bg: string; border: string; text: string }> = {
+  novo: { bg: '#e8f5e9', border: '#2e7d32', text: '#2e7d32' },
+  contatado: { bg: '#e3f2fd', border: '#1565c0', text: '#1565c0' },
+  negociando: { bg: '#fff3e0', border: '#e65100', text: '#e65100' },
+  fechado: { bg: '#eceff1', border: '#546e7a', text: '#546e7a' },
+};
+
 export function StatusSelector({ currentStatus, onChange }: Props) {
   const options: ('novo' | 'contatado' | 'negociando' | 'fechado')[] = [
     'novo', 'contatado', 'negociando', 'fechado'
@@ -17,17 +24,25 @@ export function StatusSelector({ currentStatus, onChange }: Props) {
     <View style={styles.container}>
       {options.map((opt) => {
         const isActive = currentStatus.value === opt;
+        const color = STATUS_COLORS[opt];
+        const chipBg = isActive ? color.border : color.bg;
+        const textColor = isActive ? '#fff' : color.text;
+
         return (
           <TouchableOpacity
             key={opt}
-            style={[styles.chip, isActive && styles.chipActive]}
+            style={[
+              styles.chip,
+              {
+                backgroundColor: chipBg,
+                borderColor: color.border,
+              },
+            ]}
             onPress={() => onChange(opt)}
             activeOpacity={0.7}
           >
-            {isActive && (
-              <CheckCircle size={16} color="#fff" />
-            )}
-            <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
+            {isActive && <CheckCircle size={16} color="#fff" />}
+            <Text style={[styles.chipText, { color: textColor }]}>
               {opt.charAt(0).toUpperCase() + opt.slice(1)}
             </Text>
           </TouchableOpacity>
@@ -50,25 +65,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 9999,
-    backgroundColor: 'rgba(46, 125, 50, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(46, 125, 50, 0.2)',
-  },
-  chipActive: {
-    backgroundColor: '#2e7d32',
-    borderColor: '#2e7d32',
-    shadowColor: '#2e7d32',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
   },
   chipText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#2e7d32',
-  },
-  chipTextActive: {
-    color: '#fff',
   },
 });

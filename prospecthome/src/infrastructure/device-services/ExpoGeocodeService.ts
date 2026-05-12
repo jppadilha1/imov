@@ -13,12 +13,10 @@ export class ExpoGeocodeService implements IGeocodeService {
 
       if (!results || results.length === 0) return null;
 
-      const { street, name, district, subregion } = results[0];
+      const { street, district} = results[0];
 
-      // street is the road name; fall back to name (full address string) when absent
-      const streetName = street || name;
-      // district is the neighborhood/bairro; fall back to subregion (city area)
-      const neighborhood = district || subregion;
+      const streetName = street || '';
+      const neighborhood = district || '';
 
       if (!streetName || !neighborhood) return null;
 

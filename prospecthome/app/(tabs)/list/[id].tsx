@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,6 +7,8 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
+  Alert,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -22,7 +24,9 @@ import {
 
 export default function DetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { prospecto, loading, updateStatus } = useProspectoDetail(id);
+  const { prospecto, loading, updateStatus, updateNotes } = useProspectoDetail(id);
+  const [isEditing, setIsEditing] = useState(false);
+  const [notesInput, setNotesInput] = useState(prospecto?.notes ?? '');
 
   if (loading || !prospecto) {
     return (
@@ -38,6 +42,19 @@ export default function DetailScreen() {
     ? 'Pendente ⏳'
     : 'Erro ❌';
 
+  const openMenu = () => {
+    Alert.alert('Opções', 'O que deseja fazer?', [
+      {
+        text: 'Editar',
+        onPress: () => {
+          setIsEditing(true);
+          setNotesInput(prospecto.notes ?? '');
+        },
+      },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Top App Bar */}
@@ -51,7 +68,7 @@ export default function DetailScreen() {
           </TouchableOpacity>
           <Text style={styles.appBarTitle}>Detalhes</Text>
         </View>
-        <TouchableOpacity style={styles.appBarBtn}>
+        <TouchableOpacity style={styles.appBarBtn} onPress={openMenu}>
           <MoreVertical size={24} color="#0f172a" />
         </TouchableOpacity>
       </View>
@@ -82,21 +99,74 @@ export default function DetailScreen() {
         {/* Status Section */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>STATUS</Text>
-          <StatusSelector
-            currentStatus={prospecto.status}
-            onChange={updateStatus}
-          />
+          {!isEditing ? (
+            <View
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: ['novo', 'contatado', 'negociando', 'fechado'].includes(
+                    prospecto.status.value
+                  )
+                    ? {
+                        novo: '#e8f5e9',
+                        contatado: '#e3f2fd',
+                        negociando: '#fff3e0',
+                        fechado: '#eceff1',
+                      }[prospecto.status.value]
+                    : '#f0f0f0',
+                  borderColor: {
+                    novo: '#2e7d32',
+                    contatado: '#1565c0',
+                    negociando: '#e65100',
+                    fechado: '#546e7a',
+                  }[prospecto.status.value],
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.chipText,
+                  {
+                    color: {
+                      novo: '#2e7d32',
+                      contatado: '#1565c0',
+                      negociando: '#e65100',
+                      fechado: '#546e7a',
+                    }[prospecto.status.value],
+                  },
+                ]}
+              >
+                {prospecto.status.value.charAt(0).toUpperCase() + prospecto.status.value.slice(1)}
+              </Text>
+            </View>
+          ) : (
+            <StatusSelector
+              currentStatus={prospecto.status}
+              onChange={updateStatus}
+            />
+          )}
         </View>
 
         {/* Description / Notes */}
-        {prospecto.notes && (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>DESCRIÇÃO</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>DESCRIÇÃO</Text>
+          {!isEditing ? (
             <View style={styles.notesBox}>
-              <Text style={styles.notesText}>{prospecto.notes}</Text>
+              <Text style={styles.notesText}>
+                {prospecto.notes || 'Sem notas'}
+              </Text>
             </View>
-          </View>
-        )}
+          ) : (
+            <TextInput
+              style={[styles.notesBox, styles.notesInput]}
+              multiline
+              placeholder="Adicione notas..."
+              value={notesInput}
+              onChangeText={setNotesInput}
+              placeholderTextColor="#94a3b8"
+            />
+          )}
+        </View>
 
         {/* Info List */}
         <View style={styles.section}>
@@ -150,6 +220,21 @@ export default function DetailScreen() {
             </View>
           </View>
         </View>
+
+        {/* Save Button */}
+        {isEditing && (
+          <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={async () => {
+                await updateNotes(notesInput);
+                setIsEditing(false);
+              }}
+            >
+              <Text style={styles.saveButtonText}>Salvar</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -249,6 +334,25 @@ const styles = StyleSheet.create({
     color: '#334155',
     lineHeight: 22,
   },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 9999,
+    borderWidth: 1,
+    alignSelf: 'flex-start',
+  },
+  chipText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  notesInput: {
+    minHeight: 100,
+    textAlignVertical: 'top',
+    color: '#334155',
+  },
   infoList: {
     gap: 0,
   },
@@ -279,5 +383,18 @@ const styles = StyleSheet.create({
   infoSeparator: {
     height: 1,
     backgroundColor: 'rgba(46, 125, 50, 0.05)',
+  },
+  saveButton: {
+    backgroundColor: '#2e7d32',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  saveButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
 });
