@@ -1,38 +1,63 @@
-# Spec: Comportamento Offline-First
+# Spec: Online-First com Fallback Offline
 
-Estas especificações definem as garantias do aplicativo em ambientes desprovidos de conectividade (ou com instabilidade), de acordo com RFC 2119.
+Estas especificações definem o comportamento do aplicativo em relação à conectividade. O app é **online-first**: quando há rede, Supabase é a fonte de verdade. SQLite serve como cache de leitura e fila de escritas pendentes quando offline.
 
-## 1. Princípios Gerais
+## Requirements
 
-- O aplicativo MUST se manter integralmente funcional para tarefas cruciais de captação, sem necessidade de internet ativa (Offline-First).
-- O sistema SHALL utilizar um repositório local resiliente como a Single Source of Truth primária.
-- A interface de usuário MUST prover clareza sobre o estado da rede sem ser obstrutiva. Na tela do mapa, isso SHALL incluir substituição do `MapView` por um placeholder estático com ícone e mensagem orientativa quando offline, em vez de apenas um indicador sutil ou banner.
+### Requirement: Princípios gerais — Supabase como fonte de verdade online
+O aplicativo MUST permanecer funcional sem rede para captura e visualização de dados já cacheados, mas o fluxo padrão é online: quando há conectividade, Supabase é a Single Source of Truth e SQLite serve como cache de leitura e fila de escritas pendentes. Quando offline, SQLite assume temporariamente o papel de fonte de verdade até a próxima sincronização.
 
-## 2. Cenários (Behavior-Driven)
+#### Scenario: Princípio invertido — online primeiro
+- **WHEN** o app é executado com conexão ativa
+- **THEN** leituras (`findAll`, `findById`) SHALL preferir Supabase como fonte
+- **THEN** escritas (`save`) SHALL persistir em Supabase e atualizar cache SQLite
+- **THEN** SQLite NÃO SHALL ser usado como fonte primária quando há rede
 
-### 2.1. Captura de Imóvel Sem Internet
-- **Dado** que o dispositivo não possui acesso à internet ou reporta timeouts na nuvem,
-- **Quando** o corretor efetuar uma nova captura de Prospecto,
-- **Então** o sistema MUST salvar imediatamente o registro junto com sua foto comprimida e coordenadas no cache local.
-- **E** a interface MUST exibir um feedback positivo garantindo que os dados não serão perdidos ("Salvo para envio posterior").
-- **E** o fluxo principal SHALL NOT exibir loadings infinitos ou travar aguardando pacotes de rede.
+#### Scenario: Fallback offline ainda funcional
+- **WHEN** o app perde conexão durante uso
+- **THEN** leituras subsequentes SHALL servir do cache SQLite (dados da última visita online)
+- **THEN** escritas SHALL ir para SQLite com `syncStatus = pending`
+- **THEN** UI NÃO SHALL travar ou exibir loadings infinitos por causa de chamadas remotas
 
-### 2.2. Sincronização Transparente (Background Sync)
-- **Dado** que há cadastros pendentes na fila local do dispositivo,
-- **Quando** a conectividade for restaurada com estabilidade,
-- **Então** o sistema MUST iniciar a sincronização com o banco de dados principal de forma autônoma e transparente. O mecanismo de escuta SHALL usar `INetworkService.addListener()` para garantir que hooks e use cases dependam da abstração de domínio, não do NetInfo diretamente.
-- **E** `SyncProspectosUseCase.execute()` SHALL ser chamado automaticamente quando `INetworkService.addListener` notifica transição para online.
-- **E** o destino da sincronização SHALL depender de `APP_ENV`: em `production`, SHALL ser `SupabaseSyncGateway` (Supabase real); em demais ambientes, SHALL ser `MockSyncGateway`.
-- **E** a interface de usuário SHOULD refletir esse andamento através de um indicador sutil (ex.: um badge de envio no histórico), sem interromper o trabalho em andamento.
+#### Scenario: UI reflete estado de rede sem obstruir
+- **WHEN** o dispositivo está offline
+- **THEN** a interface MUST exibir indicação clara de estado offline (banner ou ícone)
+- **THEN** placeholder no mapa SHALL ser exibido conforme spec original (sem alteração)
 
-### 2.3. Tela do Mapa Offline
-- **Dado** que o dispositivo não possui conexão e o usuário acessa a aba do mapa,
-- **Então** o `MapView` SHALL ser substituído por placeholder com ícone `WifiOff` e texto orientativo.
-- **E** o texto MUST orientar o usuário a continuar capturando imóveis normalmente.
-- **E** o texto MUST informar que a sincronização ocorrerá automaticamente ao reconectar.
+### Requirement: Captura offline mantém fila de pending
+A captura de um prospecto sem rede SHALL salvar imediatamente no SQLite com `syncStatus = pending`, e a sincronização SHALL ocorrer automaticamente assim que `INetworkService.addListener` notificar transição para online, via `useNetworkSync` que aciona `SyncProspectosUseCase.execute()`.
 
-### 2.4. Resolução de Endereço em Nuvem
-- **Dado** que um imóvel foi recém capturado com suas latitudes e longitudes exatas,
-- **Quando** a internet retornar e o pacote desse prospecto subir,
-- **Então** o frontend SHALL delegar ao servidor as tarefas massivas (como o Reverse Geocoding via API do Google/Mapbox).
-- **E** após o servidor enriquecer o pacote, o frontend MUST atualizar o registro na lista de histórico silenciosamente num próximo "pull".
+#### Scenario: Captura sem internet
+- **WHEN** o corretor captura um Prospecto e o dispositivo está offline
+- **THEN** o sistema MUST salvar o registro com foto comprimida e coordenadas em SQLite com `syncStatus = pending`
+- **THEN** UI MUST exibir feedback positivo ("Salvo para envio posterior")
+- **THEN** fluxo principal SHALL NOT travar aguardando rede
+
+#### Scenario: Sincronização transparente ao reconectar
+- **WHEN** conectividade é restaurada com `pending` items na fila local
+- **THEN** `useNetworkSync` SHALL acionar `SyncProspectosUseCase.execute()`
+- **THEN** upload SHALL ser feito; após sucesso, items marcados como `synced`
+- **THEN** UI SHOULD refletir andamento via indicador sutil
+
+### Requirement: Tela do mapa offline mantém placeholder
+A tela do mapa SHALL continuar substituindo o `MapView` por placeholder com ícone `WifiOff` e texto orientativo quando offline.
+
+#### Scenario: Mapa sem conexão
+- **WHEN** dispositivo offline e usuário acessa aba do mapa
+- **THEN** `MapView` SHALL ser substituído por placeholder com ícone `WifiOff`
+- **THEN** texto SHALL orientar o usuário a continuar capturando normalmente
+- **THEN** texto SHALL informar que sync ocorre automaticamente ao reconectar
+
+### Requirement: Resolução de endereço no momento da captura
+A resolução de endereço (reverse geocoding) SHALL ser feita via `ExpoGeocodeService` em `CaptureProspectoUseCase` ANTES do save inicial. Se offline ou falha, o save prossegue sem endereço e `SyncProspectosUseCase` faz retry no próximo sync.
+
+#### Scenario: Endereço resolvido na captura online
+- **WHEN** captura é feita com rede disponível
+- **THEN** `CaptureProspectoUseCase` SHALL chamar `geocodeService.reverseGeocode(coords)` antes do save
+- **THEN** se geocode retorna `Address`, prospecto é salvo com endereço resolvido
+- **THEN** save vai direto pro Supabase via `HybridProspectoRepository`
+
+#### Scenario: Geocode falha na captura — retry no sync
+- **WHEN** geocode retorna `null` ou lança exceção
+- **THEN** prospecto é salvo sem endereço
+- **THEN** se offline, fica pending; quando voltar online, `SyncProspectosUseCase` tenta geocode novamente antes de upload

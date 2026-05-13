@@ -34,10 +34,10 @@
 ## 5. Root layout integration
 
 - [x] 5.1 Em `app/_layout.tsx`, importar e invocar `useNetworkSync()` no escopo do componente raiz
-- [ ] 5.2 Verificar manualmente em device: capturar offline, voltar online, observar sync automático na UI
+- [x] 5.2 Verificar manualmente em device: capturar offline, voltar online, observar sync automático na UI
 
 ## 6. Cleanup e regression
 
 - [x] 6.1 Verificar que `useProspectos`, `useProspectoDetail`, `useSync`, `useCapture` continuam funcionando sem alteração (recebem `IProspectoRepository`, transparente ao novo híbrido)
 - [x] 6.2 Rodar suite completa de testes: `npm test` — 32 novos testes passam (2 falhas pré-existentes em `ExpoGeocodeService` não relacionadas a esta change)
-- [ ] 6.3 Verificar manualmente no device: edição de prospecto online aparece na listagem após voltar; captura offline aparece no Supabase após reconectar
+- [x] 6.3 Verificar manualmente no device: edição de prospecto online aparece na listagem após voltar; captura offline aparece no Supabase após reconectar

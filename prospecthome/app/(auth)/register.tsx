@@ -9,10 +9,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { router } from 'expo-router';
-import { Home, Search, Mail, Lock, Eye, EyeOff, User } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react-native';
 
 export default function RegisterScreen() {
   const { register, user, loading } = useAuth();
@@ -45,14 +46,13 @@ export default function RegisterScreen() {
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Icon Section */}
+        {/* Logo Section */}
         <View style={styles.iconWrapper}>
-          <View style={styles.iconCircle}>
-            <Home size={48} color="#2e7d32" />
-            <View style={styles.searchBadge}>
-              <Search size={16} color="#2e7d32" />
-            </View>
-          </View>
+          <Image
+            source={require('../../assets/images/prospect-home-logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Header Section */}
@@ -155,22 +155,11 @@ const styles = StyleSheet.create({
   },
   iconWrapper: {
     marginBottom: 8,
-  },
-  iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(46, 125, 50, 0.1)',
-    justifyContent: 'center',
     alignItems: 'center',
   },
-  searchBadge: {
-    position: 'absolute',
-    right: -2,
-    bottom: -2,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 2,
+  logo: {
+    width: 96,
+    height: 96,
   },
   header: {
     alignItems: 'center',
