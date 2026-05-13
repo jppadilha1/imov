@@ -12,6 +12,7 @@ module.exports = {
     newArchEnabled: true,
     ios: {
       supportsTablet: true,
+      bundleIdentifier: "com.jppadilha.prospecthome",
     },
     android: {
       adaptiveIcon: {

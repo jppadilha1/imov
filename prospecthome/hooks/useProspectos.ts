@@ -18,7 +18,8 @@ export function useProspectos() {
     container.photoService,
     container.locationService,
     container.photoStorage,
-    container.prospectoRepository
+    container.prospectoRepository,
+    container.geocodeService
   );
   const syncUC = new SyncProspectosUseCase(container.syncGateway, container.prospectoRepository, container.geocodeService);
   const deleteUC = new DeleteProspectoUseCase(container.prospectoRepository);

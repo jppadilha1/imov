@@ -15,8 +15,8 @@ export class ExpoGeocodeService implements IGeocodeService {
 
       const { street, district, name, subregion } = results[0];
 
-      const streetName = street || name || '';
-      const neighborhood = district || subregion || '';
+      const streetName = street || name;
+      const neighborhood = district || subregion;
 
       if (!streetName || !neighborhood) return null;
 

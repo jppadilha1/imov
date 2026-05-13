@@ -23,6 +23,7 @@ export class SyncProspectosUseCase {
             if (!prospecto.address) {
               try {
                 const address = await this.geocodeService.reverseGeocode(prospecto.coordinates);
+                console.log(address)
                 if (address) {
                   prospecto.resolveAddress(address);
                   await this.prospectoRepository.save(prospecto);

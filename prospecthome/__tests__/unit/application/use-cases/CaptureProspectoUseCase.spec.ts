@@ -1,6 +1,7 @@
 import { CaptureProspectoUseCase } from "../../../../src/application/use-cases/CaptureProspectoUseCase";
 import { Coordinates } from "../../../../src/domain/value-objects/Coordinates";
 import { PhotoPath } from "../../../../src/domain/value-objects/PhotoPath";
+import { Address } from "../../../../src/domain/value-objects/Address";
 
 describe("CaptureProspectoUseCase", () => {
   let useCase: CaptureProspectoUseCase;
@@ -8,6 +9,7 @@ describe("CaptureProspectoUseCase", () => {
   let mockLocationSvc: { getCurrentPosition: jest.Mock };
   let mockRepo: { save: jest.Mock };
   let mockStorage: { savePhoto: jest.Mock };
+  let mockGeocode: { reverseGeocode: jest.Mock };
 
   beforeEach(() => {
     mockPhotoSvc = {
@@ -23,19 +25,24 @@ describe("CaptureProspectoUseCase", () => {
     mockStorage = {
       savePhoto: jest.fn()
     };
-    
+    mockGeocode = {
+      reverseGeocode: jest.fn()
+    };
+
     // Default mocks
     mockPhotoSvc.capturePhoto.mockResolvedValue("file:/tmp/raw.jpg");
     mockPhotoSvc.compressPhoto.mockResolvedValue("file:/tmp/comp.jpg");
     mockLocationSvc.getCurrentPosition.mockResolvedValue(new Coordinates(10, 20));
     mockStorage.savePhoto.mockResolvedValue(new PhotoPath("final.jpg"));
     mockRepo.save.mockResolvedValue(undefined);
+    mockGeocode.reverseGeocode.mockResolvedValue(null);
 
     useCase = new CaptureProspectoUseCase(
       mockPhotoSvc as any,
       mockLocationSvc as any,
       mockStorage as any,
-      mockRepo as any
+      mockRepo as any,
+      mockGeocode as any
     );
   });
 
@@ -46,16 +53,15 @@ describe("CaptureProspectoUseCase", () => {
     expect(mockPhotoSvc.compressPhoto).toHaveBeenCalledWith("file:/tmp/raw.jpg");
     expect(mockLocationSvc.getCurrentPosition).toHaveBeenCalled();
     expect(mockStorage.savePhoto).toHaveBeenCalledWith("file:/tmp/comp.jpg");
-    
+
     expect(mockRepo.save).toHaveBeenCalled();
     const saved = mockRepo.save.mock.calls[0][0];
 
     expect(saved.userId).toBe("user-1");
     expect(saved.coordinates.latitude).toBe(10);
     expect(saved.photoPath.path).toBe("final.jpg");
-    expect(saved.isPending()).toBe(true); // default from entity
+    expect(saved.isPending()).toBe(true);
 
-    // Retorna a variavel montada
     expect(prospecto).toBe(saved);
   });
 
@@ -66,5 +72,38 @@ describe("CaptureProspectoUseCase", () => {
     expect(p).toBeNull();
     expect(mockLocationSvc.getCurrentPosition).not.toHaveBeenCalled();
     expect(mockRepo.save).not.toHaveBeenCalled();
+  });
+
+  it("resolve endereço via geocodeService antes de salvar quando online", async () => {
+    const address = new Address("Rua das Flores", "S/N", "Pinheiros", "", "", "00000000");
+    mockGeocode.reverseGeocode.mockResolvedValue(address);
+
+    const prospecto = await useCase.execute("user-1");
+
+    expect(mockGeocode.reverseGeocode).toHaveBeenCalledWith(expect.objectContaining({
+      latitude: 10,
+      longitude: 20
+    }));
+    expect(prospecto!.address).toBe(address);
+    const saved = mockRepo.save.mock.calls[0][0];
+    expect(saved.address).toBe(address);
+  });
+
+  it("salva prospecto sem endereço quando geocodeService retorna null", async () => {
+    mockGeocode.reverseGeocode.mockResolvedValue(null);
+
+    const prospecto = await useCase.execute("user-1");
+
+    expect(prospecto!.address).toBeNull();
+    expect(mockRepo.save).toHaveBeenCalled();
+  });
+
+  it("salva prospecto sem endereço quando geocodeService lança exceção", async () => {
+    mockGeocode.reverseGeocode.mockRejectedValue(new Error("Network failed"));
+
+    const prospecto = await useCase.execute("user-1");
+
+    expect(prospecto!.address).toBeNull();
+    expect(mockRepo.save).toHaveBeenCalled();
   });
 });

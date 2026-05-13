@@ -15,7 +15,8 @@ export function useCapture() {
     container.photoService,
     container.locationService,
     container.photoStorage,
-    container.prospectoRepository
+    container.prospectoRepository,
+    container.geocodeService
   );
 
   const capture = async () => {
