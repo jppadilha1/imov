@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { container } from '../src/dependency_injection/container';
 import { Prospecto } from '../src/domain/entities/Prospecto';
 import { ListProspectosUseCase } from '../src/application/use-cases/ListProspectosUseCase';
@@ -12,46 +12,79 @@ export function useProspectos() {
   const [prospectos, setProspectos] = useState<Prospecto[]>([]);
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const listUC = new ListProspectosUseCase(container.prospectoRepository);
-  const captureUC = new CaptureProspectoUseCase(
-    container.photoService,
-    container.locationService,
-    container.photoStorage,
-    container.prospectoRepository,
-    container.geocodeService
-  );
-  const syncUC = new SyncProspectosUseCase(container.syncGateway, container.prospectoRepository, container.geocodeService);
-  const deleteUC = new DeleteProspectoUseCase(container.prospectoRepository);
+  const useCases = useMemo(() => ({
+    list: new ListProspectosUseCase(container.prospectoRepository),
+    capture: new CaptureProspectoUseCase(
+      container.photoService,
+      container.locationService,
+      container.photoStorage,
+      container.prospectoRepository,
+      container.geocodeService
+    ),
+    sync: new SyncProspectosUseCase(
+      container.syncGateway,
+      container.prospectoRepository,
+      container.geocodeService
+    ),
+    delete: new DeleteProspectoUseCase(container.prospectoRepository),
+  }), []);
 
   const fetch = useCallback(async () => {
     setLoading(true);
-    const list = await listUC.execute();
-    setProspectos(list);
-    setLoading(false);
-  }, []);
+    setError(null);
+    try {
+      const list = await useCases.list.execute();
+      setProspectos(list);
+    } catch (e: any) {
+      console.error('[useProspectos] fetch failed:', e);
+      setError(e?.message ?? 'Falha ao carregar prospectos');
+    } finally {
+      setLoading(false);
+    }
+  }, [useCases]);
 
-  const capture = async () => {
-    if (!user) return;
-    const novo = await captureUC.execute(user.id);
-    if (novo) await fetch();
-  };
+  const capture = useCallback(async () => {
+    if (!user) return null;
+    try {
+      const novo = await useCases.capture.execute(user.id);
+      if (novo) await fetch();
+      return novo;
+    } catch (e: any) {
+      console.error('[useProspectos] capture failed:', e);
+      setError(e?.message ?? 'Falha na captura');
+      throw e;
+    }
+  }, [user, useCases, fetch]);
 
-  const sync = async () => {
+  const sync = useCallback(async () => {
     setSyncing(true);
-    await syncUC.execute();
-    await fetch(); // refresh statuses (remoteId and sync_status)
-    setSyncing(false);
-  };
+    try {
+      await useCases.sync.execute();
+      await fetch();
+    } catch (e: any) {
+      console.error('[useProspectos] sync failed:', e);
+      setError(e?.message ?? 'Falha na sincronização');
+    } finally {
+      setSyncing(false);
+    }
+  }, [useCases, fetch]);
 
-  const remove = async (id: string) => {
-    await deleteUC.execute(id);
-    await fetch();
-  };
+  const remove = useCallback(async (id: string) => {
+    try {
+      await useCases.delete.execute(id);
+      await fetch();
+    } catch (e: any) {
+      console.error('[useProspectos] remove failed:', e);
+      setError(e?.message ?? 'Falha ao remover');
+      throw e;
+    }
+  }, [useCases, fetch]);
 
   useEffect(() => {
     if (user) fetch();
-  }, [user]);
+  }, [user, fetch]);
 
-  return { prospectos, loading, syncing, fetch, capture, sync, remove };
+  return { prospectos, loading, syncing, error, fetch, capture, sync, remove };
 }
