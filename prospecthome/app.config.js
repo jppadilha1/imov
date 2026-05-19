@@ -15,6 +15,12 @@ module.exports = {
       bundleIdentifier: "com.jppadilha.prospecthome",
     },
     android: {
+      package: "com.jppadilha.prospecthome",
+      config: {
+        googleMaps: {
+          apiKey: process.env.GOOGLE_MAPS_ANDROID_KEY,
+        },
+      },
       adaptiveIcon: {
         backgroundColor: "#2e7d32",
         foregroundImage: "./assets/images/android-icon-foreground.png",
