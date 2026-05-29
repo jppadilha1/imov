@@ -1,4 +1,4 @@
-import { SyncProspectosUseCase } from "../../../../src/application/use-cases/SyncProspectosUseCase";
+import { SyncProspectosUseCase } from "../../../../src/domain/use-cases/SyncProspectosUseCase";
 import { Prospecto } from "../../../../src/domain/entities/Prospecto";
 import { PhotoPath } from "../../../../src/domain/value-objects/PhotoPath";
 import { Coordinates } from "../../../../src/domain/value-objects/Coordinates";

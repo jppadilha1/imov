@@ -1,4 +1,4 @@
-import { ExpoLocationService } from "../../../../src/infrastructure/device-services/ExpoLocationService";
+import { ExpoLocationService } from "../../../../src/infra/services/ExpoLocationService";
 import * as Location from "expo-location";
 
 jest.mock("expo-location", () => ({

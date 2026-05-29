@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { container } from '../src/dependency_injection/container';
+import { container } from '../src/di/container';
 import { Corretor } from '../src/domain/entities/Corretor';
-import { LoginUseCase } from '../src/application/use-cases/LoginUseCase';
-import { RegisterUseCase } from '../src/application/use-cases/RegisterUseCase';
-import { CheckSessionUseCase } from '../src/application/use-cases/CheckSessionUseCase';
-import { LogoutUseCase } from '../src/application/use-cases/LogoutUseCase';
+import { LoginUseCase } from '../src/domain/use-cases/LoginUseCase';
+import { RegisterUseCase } from '../src/domain/use-cases/RegisterUseCase';
+import { CheckSessionUseCase } from '../src/domain/use-cases/CheckSessionUseCase';
+import { LogoutUseCase } from '../src/domain/use-cases/LogoutUseCase';
 
 type AuthContextType = {
   user: Corretor | null;
@@ -21,10 +21,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   // Lazy loading instances to avoid issues in tests or di race conditions
-  const getLoginUseCase = () => new LoginUseCase(container.authGateway, container.sessionRepository);
-  const getRegisterUseCase = () => new RegisterUseCase(container.authGateway, container.sessionRepository);
-  const getCheckSessUseCase = () => new CheckSessionUseCase(container.sessionRepository);
-  const getLogoutUseCase = () => new LogoutUseCase(container.authGateway, container.sessionRepository);
+  const getLoginUseCase = () => new LoginUseCase(container.authGateway);
+  const getRegisterUseCase = () => new RegisterUseCase(container.authGateway);
+  const getCheckSessUseCase = () => new CheckSessionUseCase(container.authGateway);
+  const getLogoutUseCase = () => new LogoutUseCase(container.authGateway);
 
   useEffect(() => {
     getCheckSessUseCase().execute().then(res => {

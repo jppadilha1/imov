@@ -1,4 +1,4 @@
-import { ExpoPhotoService } from "../../../../src/infrastructure/device-services/ExpoPhotoService";
+import { ExpoPhotoService } from "../../../../src/infra/services/ExpoPhotoService";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 

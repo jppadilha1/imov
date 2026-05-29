@@ -22,13 +22,13 @@ A implementação concreta `NetworkService` SHALL implementar `addListener` usan
 - **THEN** um listener NetInfo SHALL ser registrado internamente
 - **THEN** cada mudança de estado NetInfo SHALL disparar o callback com o valor de `state.isConnected`
 
-### Requirement: useSync utiliza addListener do container
-O hook `useSync` SHALL usar `container.networkService.addListener()` para reagir a mudanças de conectividade, em vez de acessar NetInfo diretamente.
+### Requirement: useNetworkSync utiliza addListener do container
+O hook `useNetworkSync` SHALL usar `container.networkService.addListener()` para reagir a mudanças de conectividade, em vez de acessar NetInfo diretamente.
 
 #### Scenario: Sync disparado ao reconectar
 - **WHEN** `addListener` notifica que `isConnected` passou a `true`
 - **THEN** `SyncProspectosUseCase.execute()` SHALL ser chamado automaticamente
 
 #### Scenario: Cleanup no unmount do hook
-- **WHEN** o componente que usa `useSync` é desmontado
+- **WHEN** o componente que usa `useNetworkSync` é desmontado
 - **THEN** a função de unsubscribe retornada por `addListener` SHALL ser chamada no cleanup do `useEffect`

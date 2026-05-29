@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useProspectoDetail } from '../../../hooks/useProspectoDetail';
 import { StatusSelector } from '../../../components/StatusSelector';
+import { resolvePhotoUri } from '../../../utils/photoUri';
 import {
   ArrowLeft,
   MoreVertical,
@@ -80,7 +81,7 @@ export default function DetailScreen() {
         {/* Hero Image */}
         <View style={styles.imageContainer}>
           <Image
-            source={{ uri: prospecto.photoPath.path }}
+            source={{ uri: resolvePhotoUri(prospecto.photoPath.path) }}
             style={styles.image}
             resizeMode="cover"
           />

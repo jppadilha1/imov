@@ -1,4 +1,4 @@
-import { SupabaseProspectoRepository } from "../../../../src/infrastructure/database/supabase/SupabaseProspectoRepository";
+import { SupabaseProspectoRepository } from "../../../../src/infra/database/supabase/SupabaseProspectoRepository";
 import { Prospecto } from "../../../../src/domain/entities/Prospecto";
 import { Coordinates } from "../../../../src/domain/value-objects/Coordinates";
 import { PhotoPath } from "../../../../src/domain/value-objects/PhotoPath";

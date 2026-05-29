@@ -1,17 +1,15 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { container } from '../src/dependency_injection/container';
+import { container } from '../src/di/container';
 import { Prospecto } from '../src/domain/entities/Prospecto';
-import { ListProspectosUseCase } from '../src/application/use-cases/ListProspectosUseCase';
-import { CaptureProspectoUseCase } from '../src/application/use-cases/CaptureProspectoUseCase';
-import { SyncProspectosUseCase } from '../src/application/use-cases/SyncProspectosUseCase';
-import { DeleteProspectoUseCase } from '../src/application/use-cases/DeleteProspectoUseCase';
+import { ListProspectosUseCase } from '../src/domain/use-cases/ListProspectosUseCase';
+import { CaptureProspectoUseCase } from '../src/domain/use-cases/CaptureProspectoUseCase';
+import { DeleteProspectoUseCase } from '../src/domain/use-cases/DeleteProspectoUseCase';
 import { useAuth } from './useAuth';
 
 export function useProspectos() {
   const { user } = useAuth();
   const [prospectos, setProspectos] = useState<Prospecto[]>([]);
   const [loading, setLoading] = useState(false);
-  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const useCases = useMemo(() => ({
@@ -20,11 +18,6 @@ export function useProspectos() {
       container.photoService,
       container.locationService,
       container.photoStorage,
-      container.prospectoRepository,
-      container.geocodeService
-    ),
-    sync: new SyncProspectosUseCase(
-      container.syncGateway,
       container.prospectoRepository,
       container.geocodeService
     ),
@@ -58,19 +51,6 @@ export function useProspectos() {
     }
   }, [user, useCases, fetch]);
 
-  const sync = useCallback(async () => {
-    setSyncing(true);
-    try {
-      await useCases.sync.execute();
-      await fetch();
-    } catch (e: any) {
-      console.error('[useProspectos] sync failed:', e);
-      setError(e?.message ?? 'Falha na sincronização');
-    } finally {
-      setSyncing(false);
-    }
-  }, [useCases, fetch]);
-
   const remove = useCallback(async (id: string) => {
     try {
       await useCases.delete.execute(id);
@@ -86,5 +66,5 @@ export function useProspectos() {
     if (user) fetch();
   }, [user, fetch]);
 
-  return { prospectos, loading, syncing, error, fetch, capture, sync, remove };
+  return { prospectos, loading, error, fetch, capture, remove };
 }

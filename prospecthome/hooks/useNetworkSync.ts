@@ -1,6 +1,12 @@
 import { useEffect, useRef } from 'react';
-import { container } from '../src/dependency_injection/container';
-import { SyncProspectosUseCase } from '../src/application/use-cases/SyncProspectosUseCase';
+import * as BackgroundFetch from 'expo-background-fetch';
+
+import '../src/infra/services/syncTask';
+import { container } from '../src/di/container';
+import { SyncProspectosUseCase } from '../src/domain/use-cases/SyncProspectosUseCase';
+
+const SYNC_TASK_NAME = 'SyncProspectos';
+const SYNC_MIN_INTERVAL_SECONDS = 15 * 60;
 
 export function useNetworkSync() {
   const syncInFlight = useRef(false);
@@ -39,8 +45,23 @@ export function useNetworkSync() {
       }
     });
 
+    try {
+      BackgroundFetch.registerTaskAsync(SYNC_TASK_NAME, {
+        minimumInterval: SYNC_MIN_INTERVAL_SECONDS,
+        stopOnTerminate: false,
+        startOnBoot: true,
+      });
+    } catch {
+      // BackgroundFetch unavailable (Expo Go) — foreground sync still works
+    }
+
     return () => {
       unsubscribe();
+      try {
+        BackgroundFetch.unregisterTaskAsync(SYNC_TASK_NAME);
+      } catch {
+        // task may not be registered
+      }
     };
   }, []);
 }

@@ -1,4 +1,4 @@
-import { ExpoGeocodeService } from "../../../../src/infrastructure/device-services/ExpoGeocodeService";
+import { ExpoGeocodeService } from "../../../../src/infra/services/ExpoGeocodeService";
 import { Coordinates } from "../../../../src/domain/value-objects/Coordinates";
 import * as Location from "expo-location";
 

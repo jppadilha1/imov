@@ -1,4 +1,4 @@
-import { SupabaseSyncGateway } from "../../../../src/infrastructure/database/supabase/SupabaseSyncGateway";
+import { SupabaseSyncGateway } from "../../../../src/infra/database/supabase/SupabaseSyncGateway";
 import { Prospecto } from "../../../../src/domain/entities/Prospecto";
 import { Coordinates } from "../../../../src/domain/value-objects/Coordinates";
 import { PhotoPath } from "../../../../src/domain/value-objects/PhotoPath";

@@ -13,6 +13,9 @@ module.exports = {
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.jppadilha.prospecthome",
+      infoPlist: {
+        UIBackgroundModes: ["fetch", "processing"],
+      },
     },
     android: {
       package: "com.jppadilha.prospecthome",
@@ -63,6 +66,8 @@ module.exports = {
             "O app precisa de acesso a câmera para capturar fotos dos prospectos.",
         },
       ],
+      "expo-task-manager",
+      "expo-background-fetch",
     ],
     experiments: {
       typedRoutes: true,

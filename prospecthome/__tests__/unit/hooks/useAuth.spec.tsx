@@ -1,23 +1,19 @@
 import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { AuthProvider } from "../../../contexts/AuthContext";
 import { useAuth } from "../../../hooks/useAuth";
-import { container } from "../../../src/dependency_injection/container";
+import { container } from "../../../src/di/container";
 import { Corretor } from "../../../src/domain/entities/Corretor";
 
-// Mock container dependencias
-jest.mock('../../../src/dependency_injection/container', () => ({
+jest.mock('../../../src/di/container', () => ({
   __esModule: true,
   container: {
     authGateway: {
       login: jest.fn(),
-      logout: jest.fn()
-    },
-    sessionRepository: {
-      saveSession: jest.fn(),
+      register: jest.fn(),
+      logout: jest.fn(),
       getSession: jest.fn(),
-      clearSession: jest.fn()
-    }
-  }
+    },
+  },
 }));
 
 describe('useAuth Hook', () => {
@@ -27,14 +23,13 @@ describe('useAuth Hook', () => {
 
   it('deve carregar a sessao inicial ao montar', async () => {
     const fakeCorretor = Corretor.create({ id: '1', email: 't@t.com' });
-    (container.sessionRepository.getSession as jest.Mock).mockResolvedValue({
+    (container.authGateway.getSession as jest.Mock).mockResolvedValue({
       corretor: fakeCorretor,
-      token: 'tok'
+      token: 'tok',
     });
 
     const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
 
-    // Initial state
     expect(result.current.loading).toBe(true);
 
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -43,10 +38,10 @@ describe('useAuth Hook', () => {
 
   it('deve fazer login com sucesso', async () => {
     const fakeCorretor = Corretor.create({ id: '1', email: 't@t.com' });
-    (container.sessionRepository.getSession as jest.Mock).mockResolvedValue(null);
+    (container.authGateway.getSession as jest.Mock).mockResolvedValue(null);
     (container.authGateway.login as jest.Mock).mockResolvedValue({
       corretor: fakeCorretor,
-      token: 'tok'
+      token: 'tok',
     });
 
     const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
@@ -60,11 +55,11 @@ describe('useAuth Hook', () => {
     expect(result.current.user).toEqual(fakeCorretor);
   });
 
-  it('deve fazer logout e limpar a sessao', async () => {
+  it('deve fazer logout via authGateway', async () => {
     const fakeCorretor = Corretor.create({ id: '1', email: 't@t.com' });
-    (container.sessionRepository.getSession as jest.Mock).mockResolvedValue({
+    (container.authGateway.getSession as jest.Mock).mockResolvedValue({
       corretor: fakeCorretor,
-      token: 'tok'
+      token: 'tok',
     });
 
     const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
@@ -75,7 +70,6 @@ describe('useAuth Hook', () => {
     });
 
     expect(container.authGateway.logout).toHaveBeenCalled();
-    expect(container.sessionRepository.clearSession).toHaveBeenCalled();
     expect(result.current.user).toBeNull();
   });
 });

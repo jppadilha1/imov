@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Prospecto } from '../src/domain/entities/Prospecto';
 import { SyncBadge } from './SyncBadge';
+import { resolvePhotoUri } from '../utils/photoUri';
 
 type Props = {
   prospecto: Prospecto;
@@ -26,7 +27,7 @@ export function ProspectoCard({ prospecto, onPress }: Props) {
     >
       {/* Image section */}
       <Image
-        source={{ uri: prospecto.photoPath.path }}
+        source={{ uri: resolvePhotoUri(prospecto.photoPath.path) }}
         style={styles.image}
         resizeMode="cover"
       />

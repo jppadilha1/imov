@@ -5,8 +5,26 @@ const mockExecute = jest.fn();
 const mockIsConnected = jest.fn();
 let capturedListener: ((isConnected: boolean) => void) | null = null;
 const mockUnsubscribe = jest.fn();
+const mockRegisterTaskAsync = jest.fn();
+const mockUnregisterTaskAsync = jest.fn();
 
-jest.mock('../../../src/dependency_injection/container', () => ({
+jest.mock('expo-background-fetch', () => ({
+  registerTaskAsync: (...args: unknown[]) => mockRegisterTaskAsync(...args),
+  unregisterTaskAsync: (...args: unknown[]) => mockUnregisterTaskAsync(...args),
+  BackgroundFetchResult: {
+    NewData: 1,
+    NoData: 2,
+    Failed: 3,
+  },
+}));
+
+jest.mock('expo-task-manager', () => ({
+  defineTask: jest.fn(),
+}));
+
+jest.mock('../../../src/infra/services/syncTask', () => ({}));
+
+jest.mock('../../../src/di/container', () => ({
   container: {
     syncGateway: {},
     prospectoRepository: {},
@@ -21,7 +39,7 @@ jest.mock('../../../src/dependency_injection/container', () => ({
   },
 }));
 
-jest.mock('../../../src/application/use-cases/SyncProspectosUseCase', () => ({
+jest.mock('../../../src/domain/use-cases/SyncProspectosUseCase', () => ({
   SyncProspectosUseCase: jest.fn().mockImplementation(() => ({
     execute: mockExecute,
   })),
@@ -32,6 +50,8 @@ describe('useNetworkSync', () => {
     jest.clearAllMocks();
     capturedListener = null;
     mockExecute.mockResolvedValue(undefined);
+    mockRegisterTaskAsync.mockResolvedValue(undefined);
+    mockUnregisterTaskAsync.mockResolvedValue(undefined);
   });
 
   it('dispara sync no mount quando já está online', async () => {
@@ -103,7 +123,6 @@ describe('useNetworkSync', () => {
 
     await waitFor(() => expect(mockExecute).toHaveBeenCalledTimes(1));
 
-    // Second online notification while first sync still in-flight (no offline transition between)
     await act(async () => {
       capturedListener!(true);
     });
@@ -123,5 +142,46 @@ describe('useNetworkSync', () => {
     unmount();
 
     expect(mockUnsubscribe).toHaveBeenCalled();
+  });
+
+  it('registra a BackgroundFetch task no mount', async () => {
+    mockIsConnected.mockResolvedValue(true);
+
+    renderHook(() => useNetworkSync());
+
+    await waitFor(() => {
+      expect(mockRegisterTaskAsync).toHaveBeenCalledWith(
+        'SyncProspectos',
+        expect.objectContaining({
+          minimumInterval: 15 * 60,
+          stopOnTerminate: false,
+          startOnBoot: true,
+        })
+      );
+    });
+  });
+
+  it('não crasha se registerTaskAsync lançar erro (Expo Go)', async () => {
+    mockIsConnected.mockResolvedValue(true);
+    mockRegisterTaskAsync.mockImplementation(() => {
+      throw new Error('BackgroundFetch indisponível');
+    });
+
+    renderHook(() => useNetworkSync());
+
+    await waitFor(() => expect(capturedListener).not.toBeNull());
+    expect(mockExecute).toHaveBeenCalledTimes(1);
+  });
+
+  it('desregistra a BackgroundFetch task no unmount', async () => {
+    mockIsConnected.mockResolvedValue(true);
+
+    const { unmount } = renderHook(() => useNetworkSync());
+
+    await waitFor(() => expect(capturedListener).not.toBeNull());
+
+    unmount();
+
+    expect(mockUnregisterTaskAsync).toHaveBeenCalledWith('SyncProspectos');
   });
 });

@@ -1,8 +1,8 @@
-import { SQLiteProspectoRepository } from "../../../../src/infrastructure/database/SQLiteProspectoRepository";
+import { SQLiteProspectoRepository } from "../../../../src/infra/database/SQLiteProspectoRepository";
 import { Prospecto } from "../../../../src/domain/entities/Prospecto";
 import { Coordinates } from "../../../../src/domain/value-objects/Coordinates";
 import { PhotoPath } from "../../../../src/domain/value-objects/PhotoPath";
-import { SQLiteClient } from "../../../../src/infrastructure/database/SQLiteClient";
+import { SQLiteClient } from "../../../../src/infra/database/SQLiteClient";
 
 const mockDb = {
   runAsync: jest.fn(),

@@ -1,4 +1,4 @@
-import { MockAuthGateway } from "../../../../src/infrastructure/mock/MockAuthGateway";
+import { MockAuthGateway } from "../../../../src/infra/mock/MockAuthGateway";
 
 describe("MockAuthGateway", () => {
   let gateway: MockAuthGateway;

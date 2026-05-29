@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 import { Prospecto } from '../src/domain/entities/Prospecto';
+import { resolvePhotoUri } from '../utils/photoUri';
 
 interface Props {
   prospecto: Prospecto;
@@ -38,9 +39,9 @@ export const ProspectPreviewCard: React.FC<Props> = ({ prospecto, onClose, onDet
       ]}
     >
       <View style={styles.content}>
-        <Image 
-          source={{ uri: prospecto.photoPath.path }} 
-          style={styles.image} 
+        <Image
+          source={{ uri: resolvePhotoUri(prospecto.photoPath.path) }}
+          style={styles.image}
         />
         
         <View style={styles.info}>

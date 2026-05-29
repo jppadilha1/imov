@@ -75,4 +75,26 @@ describe("Prospecto Entity", () => {
     p.markSyncError();
     expect(p.syncStatus.value).toBe("error");
   });
+
+  it("markDirty() deve reverter de 'synced' para 'pending' (edição local pós-sync)", () => {
+    const p = Prospecto.create(defaultParams());
+    p.markSynced("remote-id-xyz");
+    expect(p.syncStatus.value).toBe("synced");
+
+    p.markDirty();
+
+    expect(p.syncStatus.value).toBe("pending");
+    expect(p.isPending()).toBe(true);
+    expect(p.remoteId).toBe("remote-id-xyz");
+  });
+
+  it("markDirty() deve reverter de 'error' para 'pending' (retry após falha)", () => {
+    const p = Prospecto.create(defaultParams());
+    p.markSyncError();
+    expect(p.syncStatus.value).toBe("error");
+
+    p.markDirty();
+
+    expect(p.syncStatus.value).toBe("pending");
+  });
 });

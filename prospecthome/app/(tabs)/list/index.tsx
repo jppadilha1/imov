@@ -16,7 +16,7 @@ import { router } from 'expo-router';
 import { Search, RefreshCw } from 'lucide-react-native';
 
 export default function ListScreen() {
-  const { prospectos, loading, syncing, fetch } = useProspectos();
+  const { prospectos, loading, fetch } = useProspectos();
   const [isSearchVisible, setIsSearchVisible] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
 
@@ -99,7 +99,7 @@ export default function ListScreen() {
         )}
         refreshControl={
           <RefreshControl
-            refreshing={syncing}
+            refreshing={loading}
             onRefresh={fetch}
             colors={['#2e7d32']}
             tintColor="#2e7d32"

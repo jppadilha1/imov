@@ -1,4 +1,4 @@
-import { FileSystemPhotoStorage } from "../../../../src/infrastructure/storage/FileSystemPhotoStorage";
+import { FileSystemPhotoStorage } from "../../../../src/infra/services/FileSystemPhotoStorage";
 import { PhotoPath } from "../../../../src/domain/value-objects/PhotoPath";
 import * as FileSystem from "expo-file-system/legacy";
 

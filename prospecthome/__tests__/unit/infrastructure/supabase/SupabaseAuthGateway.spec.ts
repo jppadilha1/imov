@@ -1,4 +1,4 @@
-import { SupabaseAuthGateway } from "../../../../src/infrastructure/database/supabase/SupabaseAuthGateway";
+import { SupabaseAuthGateway } from "../../../../src/infra/database/supabase/SupabaseAuthGateway";
 import { Corretor } from "../../../../src/domain/entities/Corretor";
 
 type MockedSupabase = {
@@ -7,6 +7,7 @@ type MockedSupabase = {
     signUp: jest.Mock;
     signOut: jest.Mock;
     refreshSession: jest.Mock;
+    getSession: jest.Mock;
   };
 };
 
@@ -17,6 +18,7 @@ function makeMockSupabase(): MockedSupabase {
       signUp: jest.fn(),
       signOut: jest.fn(),
       refreshSession: jest.fn(),
+      getSession: jest.fn(),
     },
   };
 }
@@ -146,6 +148,41 @@ describe("SupabaseAuthGateway", () => {
       });
 
       await expect(gateway.refreshToken("old")).rejects.toThrow("Token expired");
+    });
+  });
+
+  describe("getSession", () => {
+    it("retorna corretor e token quando há sessão ativa", async () => {
+      supabase.auth.getSession.mockResolvedValue({
+        data: { session: fakeSession() },
+        error: null,
+      });
+
+      const result = await gateway.getSession();
+
+      expect(result).not.toBeNull();
+      expect(result!.token).toBe("jwt-token-abc");
+      expect(result!.corretor.id).toBe("uuid-123");
+    });
+
+    it("retorna null quando não há sessão ativa", async () => {
+      supabase.auth.getSession.mockResolvedValue({
+        data: { session: null },
+        error: null,
+      });
+
+      const result = await gateway.getSession();
+
+      expect(result).toBeNull();
+    });
+
+    it("lança Error quando Supabase retorna erro", async () => {
+      supabase.auth.getSession.mockResolvedValue({
+        data: { session: null },
+        error: { message: "Storage error" },
+      });
+
+      await expect(gateway.getSession()).rejects.toThrow("Storage error");
     });
   });
 });

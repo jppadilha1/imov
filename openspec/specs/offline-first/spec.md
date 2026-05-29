@@ -1,31 +1,25 @@
-# Spec: Online-First com Fallback Offline
+# Spec: Offline-First com SQLite como Fonte de Verdade
 
-Estas especificações definem o comportamento do aplicativo em relação à conectividade. O app é **online-first**: quando há rede, Supabase é a fonte de verdade. SQLite serve como cache de leitura e fila de escritas pendentes quando offline.
+### Requirement: Princípios gerais — SQLite como única fonte de verdade
+O aplicativo MUST operar em modo offline-first: SQLite é a Single Source of Truth para todas leituras e escritas. Supabase é exclusivamente um destino de sincronização periódica, nunca uma fonte de leitura em tempo real. O app SHALL funcionar completamente sem rede para todas as operações de captura e visualização de prospectos.
 
-## Requirements
+#### Scenario: Leitura sempre vai para SQLite
+- **WHEN** o app executa `findAll` ou `findById` com ou sem conexão ativa
+- **THEN** leituras SHALL buscar exclusivamente do SQLite local
+- **THEN** Supabase NÃO SHALL ser consultado durante operações de leitura
 
-### Requirement: Princípios gerais — Supabase como fonte de verdade online
-O aplicativo MUST permanecer funcional sem rede para captura e visualização de dados já cacheados, mas o fluxo padrão é online: quando há conectividade, Supabase é a Single Source of Truth e SQLite serve como cache de leitura e fila de escritas pendentes. Quando offline, SQLite assume temporariamente o papel de fonte de verdade até a próxima sincronização.
+#### Scenario: Escrita sempre vai para SQLite
+- **WHEN** o corretor captura ou edita um Prospecto
+- **THEN** escrita SHALL persistir imediatamente no SQLite com `syncStatus = pending`
+- **THEN** Supabase NÃO SHALL ser chamado no fluxo de escrita do use case
 
-#### Scenario: Princípio invertido — online primeiro
-- **WHEN** o app é executado com conexão ativa
-- **THEN** leituras (`findAll`, `findById`) SHALL preferir Supabase como fonte
-- **THEN** escritas (`save`) SHALL persistir em Supabase e atualizar cache SQLite
-- **THEN** SQLite NÃO SHALL ser usado como fonte primária quando há rede
-
-#### Scenario: Fallback offline ainda funcional
-- **WHEN** o app perde conexão durante uso
-- **THEN** leituras subsequentes SHALL servir do cache SQLite (dados da última visita online)
-- **THEN** escritas SHALL ir para SQLite com `syncStatus = pending`
-- **THEN** UI NÃO SHALL travar ou exibir loadings infinitos por causa de chamadas remotas
-
-#### Scenario: UI reflete estado de rede sem obstruir
-- **WHEN** o dispositivo está offline
-- **THEN** a interface MUST exibir indicação clara de estado offline (banner ou ícone)
-- **THEN** placeholder no mapa SHALL ser exibido conforme spec original (sem alteração)
+#### Scenario: App funciona sem rede
+- **WHEN** dispositivo não tem conexão com internet
+- **THEN** todas as operações de captura e listagem SHALL funcionar normalmente
+- **THEN** UI NÃO SHALL exibir erros de conectividade para operações locais
 
 ### Requirement: Captura offline mantém fila de pending
-A captura de um prospecto sem rede SHALL salvar imediatamente no SQLite com `syncStatus = pending`, e a sincronização SHALL ocorrer automaticamente assim que `INetworkService.addListener` notificar transição para online, via `useNetworkSync` que aciona `SyncProspectosUseCase.execute()`.
+A captura de um prospecto SHALL salvar imediatamente no SQLite com `syncStatus = pending`. A sincronização SHALL ocorrer via `SyncProspectosUseCase` disparado pelo scheduler periódico ou por reconexão de rede.
 
 #### Scenario: Captura sem internet
 - **WHEN** o corretor captura um Prospecto e o dispositivo está offline
@@ -33,11 +27,10 @@ A captura de um prospecto sem rede SHALL salvar imediatamente no SQLite com `syn
 - **THEN** UI MUST exibir feedback positivo ("Salvo para envio posterior")
 - **THEN** fluxo principal SHALL NOT travar aguardando rede
 
-#### Scenario: Sincronização transparente ao reconectar
+#### Scenario: Sync após reconexão promove pending para synced
 - **WHEN** conectividade é restaurada com `pending` items na fila local
-- **THEN** `useNetworkSync` SHALL acionar `SyncProspectosUseCase.execute()`
+- **THEN** `SyncProspectosUseCase.execute()` SHALL ser acionado
 - **THEN** upload SHALL ser feito; após sucesso, items marcados como `synced`
-- **THEN** UI SHOULD refletir andamento via indicador sutil
 
 ### Requirement: Tela do mapa offline mantém placeholder
 A tela do mapa SHALL continuar substituindo o `MapView` por placeholder com ícone `WifiOff` e texto orientativo quando offline.
@@ -46,7 +39,7 @@ A tela do mapa SHALL continuar substituindo o `MapView` por placeholder com íco
 - **WHEN** dispositivo offline e usuário acessa aba do mapa
 - **THEN** `MapView` SHALL ser substituído por placeholder com ícone `WifiOff`
 - **THEN** texto SHALL orientar o usuário a continuar capturando normalmente
-- **THEN** texto SHALL informar que sync ocorre automaticamente ao reconectar
+- **THEN** texto SHALL informar que sync ocorre automaticamente ao reconectar ou no próximo ciclo de sync
 
 ### Requirement: Resolução de endereço no momento da captura
 A resolução de endereço (reverse geocoding) SHALL ser feita via `ExpoGeocodeService` em `CaptureProspectoUseCase` ANTES do save inicial. Se offline ou falha, o save prossegue sem endereço e `SyncProspectosUseCase` faz retry no próximo sync.
@@ -54,10 +47,9 @@ A resolução de endereço (reverse geocoding) SHALL ser feita via `ExpoGeocodeS
 #### Scenario: Endereço resolvido na captura online
 - **WHEN** captura é feita com rede disponível
 - **THEN** `CaptureProspectoUseCase` SHALL chamar `geocodeService.reverseGeocode(coords)` antes do save
-- **THEN** se geocode retorna `Address`, prospecto é salvo com endereço resolvido
-- **THEN** save vai direto pro Supabase via `HybridProspectoRepository`
+- **THEN** se geocode retorna `Address`, prospecto é salvo com endereço resolvido no SQLite
 
 #### Scenario: Geocode falha na captura — retry no sync
 - **WHEN** geocode retorna `null` ou lança exceção
-- **THEN** prospecto é salvo sem endereço
-- **THEN** se offline, fica pending; quando voltar online, `SyncProspectosUseCase` tenta geocode novamente antes de upload
+- **THEN** prospecto é salvo sem endereço com `syncStatus = pending`
+- **THEN** `SyncProspectosUseCase` tenta geocode novamente antes do upload

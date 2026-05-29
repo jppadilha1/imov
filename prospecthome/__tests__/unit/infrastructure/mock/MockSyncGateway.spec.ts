@@ -1,4 +1,4 @@
-import { MockSyncGateway } from "../../../../src/infrastructure/mock/MockSyncGateway";
+import { MockSyncGateway } from "../../../../src/infra/mock/MockSyncGateway";
 import { Prospecto } from "../../../../src/domain/entities/Prospecto";
 import { PhotoPath } from "../../../../src/domain/value-objects/PhotoPath";
 import { Coordinates } from "../../../../src/domain/value-objects/Coordinates";

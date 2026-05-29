@@ -100,6 +100,10 @@ export class Prospecto {
     this._syncStatus = this._syncStatus.toError();
   }
 
+  markDirty(): void {
+    this._syncStatus = SyncStatus.pending();
+  }
+
   isPending(): boolean {
     return this._syncStatus.isPending();
   }

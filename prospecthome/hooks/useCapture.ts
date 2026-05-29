@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { container } from '../src/dependency_injection/container';
+import { container } from '../src/di/container';
 import { useAuth } from './useAuth';
 import { usePermissions } from './usePermissions';
-import { CaptureProspectoUseCase } from '../src/application/use-cases/CaptureProspectoUseCase';
-import { SyncProspectosUseCase } from '../src/application/use-cases/SyncProspectosUseCase';
+import { CaptureProspectoUseCase } from '../src/domain/use-cases/CaptureProspectoUseCase';
 
 export function useCapture() {
   const [loading, setLoading] = useState(false);
@@ -41,10 +40,6 @@ export function useCapture() {
       }
 
       const prospecto = await getUseCase().execute(user.id);
-
-      new SyncProspectosUseCase(container.syncGateway, container.prospectoRepository, container.geocodeService)
-        .execute()
-        .catch(e => console.error("Sync pós-captura falhou:", e));
 
       return prospecto;
     } catch (e: any) {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { container } from '../src/dependency_injection/container';
+import { container } from '../src/di/container';
 import { Prospecto } from '../src/domain/entities/Prospecto';
 import { ProspectoStatus } from '../src/domain/value-objects/ProspectoStatus';
 
@@ -29,10 +29,11 @@ export function useProspectoDetail(id: string) {
         remoteId: prospecto.remoteId,
         createdAt: prospecto.createdAt,
       });
+      updated.markDirty();
       await container.prospectoRepository.save(updated);
       setProspecto(updated);
     } catch (e) {
-      alert(`Erro ao atualizar status: ${e.message}`);
+      alert(`Erro ao atualizar status: ${e}`);
     }
   };
 
@@ -51,10 +52,11 @@ export function useProspectoDetail(id: string) {
         remoteId: prospecto.remoteId,
         createdAt: prospecto.createdAt,
       });
+      updated.markDirty();
       await container.prospectoRepository.save(updated);
       setProspecto(updated);
     } catch (e) {
-      alert(`Erro ao atualizar notas: ${e.message}`);
+      alert(`Erro ao atualizar notas: ${e}`);
     }
   };
 

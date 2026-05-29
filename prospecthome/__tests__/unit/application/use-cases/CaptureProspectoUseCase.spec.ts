@@ -1,4 +1,4 @@
-import { CaptureProspectoUseCase } from "../../../../src/application/use-cases/CaptureProspectoUseCase";
+import { CaptureProspectoUseCase } from "../../../../src/domain/use-cases/CaptureProspectoUseCase";
 import { Coordinates } from "../../../../src/domain/value-objects/Coordinates";
 import { PhotoPath } from "../../../../src/domain/value-objects/PhotoPath";
 import { Address } from "../../../../src/domain/value-objects/Address";

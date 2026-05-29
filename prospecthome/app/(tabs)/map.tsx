@@ -84,11 +84,9 @@ export default function MapScreen() {
     try {
       const camera = await mapRef.current.getCamera();
       if (camera.zoom !== undefined) {
-        // Platform: Google Maps (Android / iOS with Google providers)
         camera.zoom += type === 'in' ? 1 : -1;
         mapRef.current.animateCamera(camera, { duration: 500 });
       } else {
-        // Platform: Apple Maps (iOS without Google Maps) uses altitude
         camera.altitude = (camera.altitude || 1000) * (type === 'in' ? 0.5 : 2);
         mapRef.current.animateCamera(camera, { duration: 500 });
       }

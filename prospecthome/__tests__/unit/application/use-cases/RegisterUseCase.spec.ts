@@ -1,32 +1,23 @@
-import { RegisterUseCase } from "../../../../src/application/use-cases/RegisterUseCase";
-import { MockAuthGateway } from "../../../../src/infrastructure/mock/MockAuthGateway";
-import { ISessionRepository } from "../../../../src/domain/repositories/ISessionRepository";
-import { Corretor } from "../../../../src/domain/entities/Corretor";
+import { RegisterUseCase } from "../../../../src/domain/use-cases/RegisterUseCase";
+import { MockAuthGateway } from "../../../../src/infra/mock/MockAuthGateway";
 
 describe("RegisterUseCase", () => {
   let useCase: RegisterUseCase;
   let authGateway: MockAuthGateway;
-  let sessionRepo: ISessionRepository;
 
   beforeEach(() => {
     authGateway = new MockAuthGateway();
-    sessionRepo = {
-      saveSession: jest.fn(),
-      getSession: jest.fn(),
-      clearSession: jest.fn()
-    } as any;
-    
-    useCase = new RegisterUseCase(authGateway, sessionRepo);
+    useCase = new RegisterUseCase(authGateway);
   });
 
-  it("call to action: deve registrar um novo corretor e salvar sessao", async () => {
+  it("deve registrar um novo corretor via authGateway", async () => {
     const spyRegister = jest.spyOn(authGateway, "register");
     const result = await useCase.execute("novo@teste.com", "senha123", "Novo Nome");
 
     expect(spyRegister).toHaveBeenCalledWith("novo@teste.com", "senha123", "Novo Nome");
-    expect(sessionRepo.saveSession).toHaveBeenCalledWith(result.corretor, result.token);
     expect(result.corretor.email).toBe("novo@teste.com");
     expect(result.corretor.nome).toBe("Novo Nome");
+    expect(result.token).toBeTruthy();
   });
 
   it("deve falhar se gateway lancar erro", async () => {

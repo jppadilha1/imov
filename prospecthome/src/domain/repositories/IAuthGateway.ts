@@ -5,4 +5,5 @@ export interface IAuthGateway {
   register(email: string, password: string, name?: string): Promise<{ corretor: Corretor; token: string }>;
   logout(): Promise<void>;
   refreshToken(token: string): Promise<{ corretor: Corretor; token: string }>;
+  getSession(): Promise<{ corretor: Corretor; token: string } | null>;
 }
