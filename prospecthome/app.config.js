@@ -24,12 +24,6 @@ module.exports = {
           apiKey: process.env.GOOGLE_MAPS_ANDROID_KEY,
         },
       },
-      adaptiveIcon: {
-        backgroundColor: "#2e7d32",
-        foregroundImage: "./assets/images/android-icon-foreground.png",
-        backgroundImage: "./assets/images/prospect-home-logo.png",
-        monochromeImage: "./assets/images/android-icon-monochrome.png",
-      },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
     },
@@ -42,12 +36,12 @@ module.exports = {
       [
         "expo-splash-screen",
         {
-          image: "./assets/images/splash-icon.png",
+          image: "./assets/images/prospect-home-logo.png",
           imageWidth: 200,
           resizeMode: "contain",
-          backgroundColor: "#2e7d32",
+          backgroundColor: "#FFFFFF",
           dark: {
-            backgroundColor: "#2e7d32",
+            backgroundColor: "#FFFFFF",
           },
         },
       ],
